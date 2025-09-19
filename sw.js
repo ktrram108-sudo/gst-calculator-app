@@ -1,19 +1,18 @@
-// Cache name
-const CACHE_NAME = 'gst-calculator-cache-v1';
+// A unique name for the cache
+const CACHE_NAME = 'gst-calculator-v1';
 
-// Files to cache
+// The files you want to cache
 const urlsToCache = [
   '/',
-  'index.html', // Yahaan badlaav kiya gaya hai
-  'manifest.json',
-  'icons/icon-192x192.png',
-  'icons/icon-512x512.png',
+  '/index.html',
   'https://cdn.tailwindcss.com',
   'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'
+  // Add other major CSS/JS files if you have any
 ];
 
-// Install service worker and cache assets
+// Install a service worker
 self.addEventListener('install', event => {
+  // Perform install steps
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
@@ -23,7 +22,7 @@ self.addEventListener('install', event => {
   );
 });
 
-// Fetch assets from cache or network
+// Cache and return requests
 self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
@@ -32,28 +31,13 @@ self.addEventListener('fetch', event => {
         if (response) {
           return response;
         }
-        // Clone the request to use it both for cache and network
-        const fetchRequest = event.request.clone();
-        return fetch(fetchRequest).then(
-          response => {
-            // Check if we received a valid response
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-            // Clone the response to put it in the cache
-            const responseToCache = response.clone();
-            caches.open(CACHE_NAME)
-              .then(cache => {
-                cache.put(event.request, responseToCache);
-              });
-            return response;
-          }
-        );
-      })
+        return fetch(event.request);
+      }
+    )
   );
 });
 
-// Activate service worker and remove old caches
+// Update a service worker
 self.addEventListener('activate', event => {
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
@@ -68,4 +52,3 @@ self.addEventListener('activate', event => {
     })
   );
 });
-
