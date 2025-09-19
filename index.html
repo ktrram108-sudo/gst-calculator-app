@@ -6,8 +6,6 @@
     <title>GST Difference Calculator</title>
     <link rel="manifest" href="manifest.json">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,27 +23,17 @@
         .dark .batch-row:not(:last-child) { border-bottom: 1px solid #374151; }
         .product-tab.active { background-color: #3b82f6; color: white; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
         .dark .product-tab.active { background-color: #2563eb; }
-        .premium-feature-locked { cursor: not-allowed; background-color: #e5e7eb !important; color: #9ca3af !important; position: relative; overflow: hidden; }
-        .dark .premium-feature-locked { background-color: #374151 !important; color: #6b7280 !important; }
-        .premium-feature-locked .lock-icon { display: inline-block; }
-        .premium-feature-unlocked .lock-icon { display: none; }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
 
     <!-- Main App Container -->
     <div id="app-container" class="container mx-auto p-4 md:p-6 lg:p-8">
-        <header class="text-center mb-8 relative">
+        <header class="text-center mb-8">
             <h1 class="text-4xl font-bold text-gray-900 dark:text-white tracking-tight">GST Difference Calculator</h1>
             <p class="mt-2 text-lg text-gray-600 dark:text-gray-400">GST अंतर की गणना करने के लिए एक सरल और आधुनिक उपकरण।</p>
-            <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+             <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
                 <span>Works best in Chrome browser.</span> | <span>यह क्रोम ब्राउज़र में सबसे अच्छा काम करता है।</span>
-            </div>
-            <div id="go-premium-banner" class="absolute top-0 right-0">
-                <button id="go-premium-btn" class="bg-amber-400 hover:bg-amber-500 text-amber-900 font-bold py-2 px-4 rounded-full flex items-center gap-2 shadow-lg transition duration-300">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
-                    Go Premium
-                </button>
             </div>
         </header>
 
@@ -101,13 +89,7 @@
                 <div id="reports-section" class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
                     <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Reports & Export</h2>
                     <div class="mb-4"><label for="report-date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Report Date</label><input type="date" id="report-date" class="input mt-1 block w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600"></div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <button id="print-report-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg">Print Report</button>
-                        <button id="export-btn" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg">Export to Excel</button>
-                        <button id="export-pdf-btn" class="w-full font-bold py-2 px-4 rounded-lg premium-feature-unlocked">
-                            <span class="lock-icon text-sm">🔒</span> Export as PDF
-                        </button>
-                    </div>
+                    <div class="flex flex-wrap gap-4"><button id="print-report-btn" class="flex-grow bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg">Print Report</button><button id="export-btn" class="flex-grow bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded-lg">Export to Excel</button></div>
                 </div>
                 
                 <div class="text-center text-xs text-gray-400 dark:text-gray-500 pt-4">
@@ -118,28 +100,7 @@
     </div>
     
     <!-- Modals -->
-    <div id="premium-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-75 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
-        <div class="relative mx-auto p-6 border w-full max-w-md shadow-lg rounded-2xl bg-white dark:bg-gray-800 transform transition-all duration-300 scale-95 opacity-0" id="premium-modal-content">
-            <button id="close-premium-modal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">&times;</button>
-            <div class="text-center">
-                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-amber-100 dark:bg-amber-900 mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-amber-500 dark:text-amber-400" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
-                </div>
-                <h3 class="text-2xl leading-6 font-bold text-gray-900 dark:text-white">Unlock Premium Features</h3>
-                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Supercharge your productivity with these exclusive features.</p>
-            </div>
-            <ul class="mt-6 space-y-3 text-sm text-gray-700 dark:text-gray-300">
-                <li class="flex items-start"><svg class="flex-shrink-0 h-5 w-5 text-green-500 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg><span>**Unlimited Products:** Add and manage unlimited products and batches.</span></li>
-                <li class="flex items-start"><svg class="flex-shrink-0 h-5 w-5 text-green-500 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg><span>**Professional PDF Exports:** Create and share professional-grade PDF reports.</span></li>
-                <li class="flex items-start"><svg class="flex-shrink-0 h-5 w-5 text-green-500 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg><span>**Save Company & Vendor Profiles:** Save details for quick-filling reports.</span></li>
-            </ul>
-            <div class="mt-8">
-                <button id="unlock-premium-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg">Unlock Now for ₹99</button>
-                <p class="text-xs text-gray-400 dark:text-gray-500 text-center mt-2">One-time purchase through Microsoft Store.</p>
-            </div>
-        </div>
-    </div>
-    <div id="print-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50"><div class="relative top-1/2 -translate-y-1/2 mx-auto p-5 border w-full max-w-lg shadow-lg rounded-md bg-white dark:bg-gray-900"><div class="mt-3"><h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white mb-4">Enter Your & Vendor's Details</h3><div class="space-y-4"><div><h4 class="text-md font-semibold text-gray-800 dark:text-gray-200 mb-2 border-b pb-1">Your Company Details</h4><div class="flex items-center gap-2"><button id="save-company-details" class="text-xs p-1 rounded premium-feature-unlocked"><span class="lock-icon">🔒</span> Save</button><button id="load-company-details" class="text-xs p-1 rounded premium-feature-unlocked"><span class="lock-icon">🔒</span> Load</button></div><label for="your-company-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mt-2">Your Company Name</label><input type="text" id="your-company-name" class="input mt-1 block w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600" placeholder="e.g., Your Business LLC"><label for="your-company-gstin" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mt-2">Your GSTIN</label><input type="text" id="your-company-gstin" class="input mt-1 block w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600" placeholder="Your GST Identification Number"><label for="authorized-signatory" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mt-2">Authorized Signatory</label><input type="text" id="authorized-signatory" class="input mt-1 block w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600" placeholder="e.g., John Doe"></div><div><h4 class="text-md font-semibold text-gray-800 dark:text-gray-200 mb-2 pt-4 border-b pb-1">Vendor Details</h4><div class="flex items-center gap-2"><button id="save-vendor-details" class="text-xs p-1 rounded premium-feature-unlocked"><span class="lock-icon">🔒</span> Save</button><button id="load-vendor-details" class="text-xs p-1 rounded premium-feature-unlocked"><span class="lock-icon">🔒</span> Load</button></div><label for="vendor-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mt-2">Vendor Name</label><input type="text" id="vendor-name" class="input mt-1 block w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600" placeholder="Vendor Company Name"><label for="vendor-gstin" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mt-2">Vendor GSTIN (Optional)</label><input type="text" id="vendor-gstin" class="input mt-1 block w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600" placeholder="Vendor's GSTIN"></div></div><div class="items-center px-4 py-3 mt-4 text-right"><button id="cancel-print-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-md mr-2">Cancel</button><button id="confirm-print-btn" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Generate & Print</button></div></div></div></div>
+    <div id="print-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50"><div class="relative top-1/2 -translate-y-1/2 mx-auto p-5 border w-full max-w-lg shadow-lg rounded-md bg-white dark:bg-gray-900"><div class="mt-3"><h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white mb-4">Enter Your & Vendor's Details</h3><div class="space-y-4"><div><h4 class="text-md font-semibold text-gray-800 dark:text-gray-200 mb-2 border-b pb-1">Your Company Details</h4><label for="your-company-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mt-2">Your Company Name</label><input type="text" id="your-company-name" class="input mt-1 block w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600" placeholder="e.g., Your Business LLC"><label for="your-company-gstin" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mt-2">Your GSTIN</label><input type="text" id="your-company-gstin" class="input mt-1 block w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600" placeholder="Your GST Identification Number"><label for="authorized-signatory" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mt-2">Authorized Signatory</label><input type="text" id="authorized-signatory" class="input mt-1 block w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600" placeholder="e.g., John Doe"></div><div><h4 class="text-md font-semibold text-gray-800 dark:text-gray-200 mb-2 pt-4 border-b pb-1">Vendor Details</h4><label for="vendor-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mt-2">Vendor Name</label><input type="text" id="vendor-name" class="input mt-1 block w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600" placeholder="Vendor Company Name"><label for="vendor-gstin" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mt-2">Vendor GSTIN (Optional)</label><input type="text" id="vendor-gstin" class="input mt-1 block w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600" placeholder="Vendor's GSTIN"></div></div><div class="items-center px-4 py-3 mt-4 text-right"><button id="cancel-print-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-md mr-2">Cancel</button><button id="confirm-print-btn" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Generate & Print</button></div></div></div></div>
     <div id="header-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-75 overflow-y-auto h-full w-full z-50"><div class="relative top-1/2 -translate-y-1/2 mx-auto p-6 border w-full max-w-4xl shadow-lg rounded-md bg-white dark:bg-gray-900"><h3 class="text-xl leading-6 font-medium text-gray-900 dark:text-white mb-2">Step 1: Preview Data & Select Header Row</h3><p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Aapki file ka preview neeche hai. Kripya batayein ki column headers (jaise 'NameToPrint', 'HSN/SAC') kis row number mein hain.</p><div class="flex items-center gap-4 mb-4"><label for="header-row-input" class="font-semibold text-sm text-gray-700 dark:text-gray-300">Header is on Row:</label><input type="number" id="header-row-input" value="1" min="1" class="w-24 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600"></div><div id="data-preview-container" class="border rounded-lg overflow-auto max-h-80 bg-gray-50 dark:bg-gray-800"></div><div class="items-center px-4 py-3 mt-6 text-right space-x-2"><button id="cancel-header-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-md">Cancel</button><button id="confirm-header-btn" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-semibold">Next: Map Columns &rarr;</button></div></div></div>
     <div id="mapping-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-75 overflow-y-auto h-full w-full z-50"><div class="relative top-1/2 -translate-y-1/2 mx-auto p-6 border w-full max-w-2xl shadow-lg rounded-md bg-white dark:bg-gray-900"><h3 class="text-xl leading-6 font-medium text-gray-900 dark:text-white mb-4">Step 2: Match Your Columns</h3><p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Kripya apni file ke columns (right) ko application ke zaroori fields (left) se match karein.</p><div id="mapping-container" class="space-y-3 max-h-96 overflow-y-auto pr-2 custom-scrollbar"></div><div class="items-center px-4 py-3 mt-6 text-right space-x-2"><button id="cancel-mapping-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-md">Cancel</button><button id="confirm-mapping-btn" class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-semibold">Confirm Mapping & Process</button></div></div></div>
     <div id="license-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-75 overflow-y-auto h-full w-full z-50"><div class="relative top-1/2 -translate-y-1/2 mx-auto p-6 border w-full max-w-3xl shadow-lg rounded-md bg-white dark:bg-gray-900"><div class="flex justify-between items-start"><h3 class="text-xl leading-6 font-medium text-gray-900 dark:text-white">Software License Agreement</h3><button id="close-license-modal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-2xl leading-none">&times;</button></div><div class="mt-4 text-sm text-gray-600 dark:text-gray-300 max-h-96 overflow-y-auto custom-scrollbar pr-4"><p class="font-bold">Copyright (c) 2025 Ram Prakash. All Rights Reserved.</p><p class="mt-2">This is a legal agreement between you and the copyright owner (Ram Prakash) for the software product "GST Difference Calculator". By using the Software, you agree to be bound by the terms of this license.</p><h4 class="font-bold mt-4">1. Grant of License</h4><p>The Software is licensed, not sold. You are granted a personal, non-exclusive, non-transferable, limited license to use the Software for your personal or internal business purposes.</p><h4 class="font-bold mt-4">2. Restrictions</h4><p>You are expressly prohibited from: Copying, distributing, modifying, reverse engineering, decompiling, sublicensing, renting, leasing, or lending the Software.</p><h4 class="font-bold mt-4">3. Disclaimer of Warranty</h4><p>The Software is provided "AS IS" without warranty of any kind.</p><h4 class="font-bold mt-4">4. Limitation of Liability</h4><p>In no event shall the copyright owner be liable for any special, incidental, indirect, or consequential damages whatsoever arising out of the use of or inability to use the software product.</p></div></div></div>
@@ -150,67 +111,7 @@
          * Copyright (c) 2025 Ram Prakash. All Rights Reserved.
          */
         'use strict';
-
-        // --- PREMIUM FEATURE LOGIC ---
-        let isPremiumUser = localStorage.getItem('isGstCalcPremium') === 'true';
-        const FREE_PRODUCT_LIMIT = 5;
-
-        const premiumModal = document.getElementById('premium-modal');
-        const premiumModalContent = document.getElementById('premium-modal-content');
-        const goPremiumBtn = document.getElementById('go-premium-btn');
-        const goPremiumBanner = document.getElementById('go-premium-banner');
-        const closePremiumModalBtn = document.getElementById('close-premium-modal');
-        const unlockPremiumBtn = document.getElementById('unlock-premium-btn');
-        const exportPdfBtn = document.getElementById('export-pdf-btn');
-        
-        const saveCompanyDetailsBtn = document.getElementById('save-company-details');
-        const loadCompanyDetailsBtn = document.getElementById('load-company-details');
-        const saveVendorDetailsBtn = document.getElementById('save-vendor-details');
-        const loadVendorDetailsBtn = document.getElementById('load-vendor-details');
-
-        const showPremiumModal = () => {
-            premiumModal.classList.remove('hidden');
-            setTimeout(() => {
-                premiumModalContent.classList.remove('scale-95', 'opacity-0');
-            }, 10);
-        };
-
-        const hidePremiumModal = () => {
-             premiumModalContent.classList.add('scale-95', 'opacity-0');
-             setTimeout(() => {
-                premiumModal.classList.add('hidden');
-            }, 300);
-        };
-        
-        const updateUiForPremium = () => {
-            document.querySelectorAll('.premium-feature-unlocked').forEach(el => {
-                if (isPremiumUser) {
-                    el.classList.remove('premium-feature-locked');
-                } else {
-                    el.classList.add('premium-feature-locked');
-                }
-            });
-            if (isPremiumUser) {
-                goPremiumBanner.style.display = 'none';
-            } else {
-                goPremiumBanner.style.display = 'block';
-            }
-        };
-
-        goPremiumBtn.addEventListener('click', showPremiumModal);
-        closePremiumModalBtn.addEventListener('click', hidePremiumModal);
-        unlockPremiumBtn.addEventListener('click', () => {
-            isPremiumUser = true;
-            localStorage.setItem('isGstCalcPremium', 'true');
-            updateUiForPremium();
-            hidePremiumModal();
-            alert('Congratulations! All premium features have been unlocked.');
-        });
-        
-        // --- END PREMIUM FEATURE LOGIC ---
-
         const licenseModal = document.getElementById('license-modal');
-        // ... (rest of the variable declarations are the same)
         const licenseTrigger = document.getElementById('license-trigger');
         const closeLicenseModal = document.getElementById('close-license-modal');
         const calculatorBody = document.getElementById("calculator-body");
@@ -248,18 +149,6 @@
         let uploadedDataCache = null;
         let uploadedHeadersCache = null;
         let nextGroupId = 0;
-
-        printReportBtn.addEventListener('click', () => {
-            printModal.classList.remove('hidden');
-        });
-
-        exportBtn.addEventListener('click', () => {
-            exportData();
-        });
-        
-        getAiSummaryBtn.addEventListener('click', () => {
-            getAiSummary();
-        });
 
         const calculateBatchRow = (batchRow) => {
             const getVal = (selector) => parseFloat(batchRow.querySelector(selector).value) || 0;
@@ -364,11 +253,6 @@
         };
 
         addProductGroupBtn.addEventListener("click", () => {
-            if (!isPremiumUser && document.querySelectorAll('.product-group').length >= FREE_PRODUCT_LIMIT) {
-                alert(`You have reached the limit of ${FREE_PRODUCT_LIMIT} products for the free version.`);
-                showPremiumModal();
-                return;
-            }
             const groupId = createProductGroup();
             switchProductView(groupId)
         });
@@ -422,36 +306,18 @@
         }
 
         function processUploadedData(dataRows, mapping, headerRowIndex) {
-            const productsToProcess = [];
+            const groupedProducts = new Map();
             for (let i = headerRowIndex + 1; i < dataRows.length; i++) {
                 const columns = dataRows[i];
                 if (!columns || columns.length === 0 || columns.every(c => c === null || c === '') || (columns.join(',') || '').toLowerCase().includes('grand total')) continue;
-                 const getColumnData = (key) => (mapping[key] !== undefined && mapping[key] !== -1) ? columns[mapping[key]] : '';
+                const getColumnData = (key) => (mapping[key] !== undefined && mapping[key] !== -1) ? columns[mapping[key]] : '';
                 const productName = String(getColumnData('product')).trim();
                 if (productName) {
-                    productsToProcess.push(columns);
-                }
-            }
-
-            if (!isPremiumUser && productsToProcess.length > FREE_PRODUCT_LIMIT) {
-                 alert(`Your file contains more than ${FREE_PRODUCT_LIMIT} products. Only the first ${FREE_PRODUCT_LIMIT} will be imported in the free version.`);
-                showPremiumModal();
-            }
-
-            const groupedProducts = new Map();
-            const productLimit = isPremiumUser ? productsToProcess.length : FREE_PRODUCT_LIMIT;
-
-            for (let i = 0; i < productLimit; i++) {
-                 const columns = dataRows[headerRowIndex + 1 + i];
-                 const getColumnData = (key) => (mapping[key] !== undefined && mapping[key] !== -1) ? columns[mapping[key]] : '';
-                 const productName = String(getColumnData('product')).trim();
-                 if (productName) {
                     const batchData = { hsn: String(getColumnData('hsn')).trim(), totalQty: parseFloat(getColumnData('totalQty')) || 0, batch: String(getColumnData('batch')).trim(), mrp: parseFloat(getColumnData('mrp')) || 0, td: parseFloat(getColumnData('td')) || 0, baseRate: parseFloat(getColumnData('baseRate')) || 0, gst: parseInt(getColumnData('gst')) || 12, schemePaid: parseFloat(getColumnData('schemePaid')) || 0, schemeFree: parseFloat(getColumnData('schemeFree')) || 0 };
                     if (!groupedProducts.has(productName)) { groupedProducts.set(productName, []); }
                     groupedProducts.get(productName).push(batchData);
                 }
             }
-            
             if (groupedProducts.size > 0) {
                 document.querySelectorAll(".product-group").forEach(group => group.remove());
                 productTabs.innerHTML = "";
@@ -561,13 +427,13 @@
         cancelMappingBtn.addEventListener("click", () => { mappingModal.classList.add("hidden"); csvFileInput.value = ""; });
         
         const exportData = () => {
-             if (document.querySelectorAll(".product-group").length === 0) return alert("No data to export.");
+             if (calculatorBody.children.length === 0) return alert("No data to export.");
             const headers = ["Product Name", "Batch", "MRP", "HSN Code", "Base Rate", "TD %", "Scheme (Paid)", "Scheme (Free)", "Total Quantity", "Taxable Amount", "Current GST %", "Current GST Amt", "GST 5% Amount", "GST Difference"];
             const data = [headers];
             document.querySelectorAll(".product-group").forEach(group => {
                 const productName = group.querySelector(".product-name-group").value;
                 group.querySelectorAll(".batch-row").forEach(row => {
-                    data.push([productName, row.querySelector(".batch-code").value, row.querySelector(".mrp").value, row.querySelector(".hsn-code").value, row.querySelector(".base-rate").value, row.querySelector(".trade-discount").value, row.querySelector(".scheme-paid").value, row.querySelector(".scheme-free").value, row.querySelector(".total-qty").value, row.querySelector(".taxable-amount").textContent.replace('₹', ''), row.querySelector(".current-gst").value, row.querySelector(".current-gst-amt").textContent.replace('₹', ''), row.querySelector(".gst-5-amt").textContent.replace('₹', ''), row.querySelector(".gst-difference").textContent.replace('₹', '')]);
+                    data.push([productName, row.querySelector(".batch-code").value, row.querySelector(".mrp").value, row.querySelector(".hsn-code").value, row.querySelector(".base-rate").value, row.querySelector(".trade-discount").value, row.querySelector(".scheme-paid").value, row.querySelector(".scheme-free").value, row.querySelector(".total-qty").value, row.querySelector(".taxable-amount").textContent, row.querySelector(".current-gst").value, row.querySelector(".current-gst-amt").textContent, row.querySelector(".gst-5-amt").textContent, row.querySelector(".gst-difference").textContent]);
                 });
             });
             const ws = XLSX.utils.aoa_to_sheet(data);
@@ -588,7 +454,7 @@
             rupeesInWords += (n %= 1e7) > 99999 ? inWords(Math.floor(n / 1e5)) + "lakh " : "";
             rupeesInWords += (n %= 1e5) > 999 ? inWords(Math.floor(n / 1e3)) + "thousand " : "";
             rupeesInWords += (n %= 1e3) > 99 ? inWords(Math.floor(n / 100)) + "hundred " : "";
-            rupeesInWords += (n %= 100) > 0 ? "and " + inWords(n) : "";
+            rupeesInWords += (n %= 100) > 0 ? inWords(n) : "";
             let paisaInWords = parseInt(decimalPart) > 0 ? "and " + inWords(parseInt(decimalPart)) + "paisa " : "";
             return `Rupees ${rupeesInWords.trim()} ${paisaInWords.trim()} only`.charAt(0).toUpperCase() + `Rupees ${rupeesInWords.trim()} ${paisaInWords.trim()} only`.slice(1).replace(/\s+/g, " ");
         }
@@ -682,12 +548,10 @@
         closeLicenseModal.addEventListener("click", () => licenseModal.classList.add("hidden"));
         licenseModal.addEventListener("click", e => { if (e.target === licenseModal) { licenseModal.classList.add("hidden"); } });
         
-        // --- PREMIUM FEATURE INITIALIZATION ---
-        document.addEventListener('DOMContentLoaded', updateUiForPremium);
-        
         if ("serviceWorker" in navigator) {
             window.addEventListener("load", () => {
-                navigator.serviceWorker.register("/sw.js").then(registration => {
+                // CORRECTED: Use a relative path so it works from any directory.
+                navigator.serviceWorker.register("sw.js").then(registration => {
                     console.log("ServiceWorker registration successful with scope: ", registration.scope);
                 }).catch(err => {
                     console.log("ServiceWorker registration failed: ", err);
