@@ -427,7 +427,10 @@
         cancelMappingBtn.addEventListener("click", () => { mappingModal.classList.add("hidden"); csvFileInput.value = ""; });
         
         const exportData = () => {
-             if (calculatorBody.children.length === 0) return alert("No data to export.");
+             if (document.querySelectorAll(".product-group").length === 0) {
+                alert("No data to export.");
+                return;
+             }
             const headers = ["Product Name", "Batch", "MRP", "HSN Code", "Base Rate", "TD %", "Scheme (Paid)", "Scheme (Free)", "Total Quantity", "Taxable Amount", "Current GST %", "Current GST Amt", "GST 5% Amount", "GST Difference"];
             const data = [headers];
             document.querySelectorAll(".product-group").forEach(group => {
@@ -541,6 +544,20 @@
             }
         }
         
+        // CORRECTED: Added Event Listeners for report buttons
+        printReportBtn.addEventListener('click', () => {
+            if (document.querySelectorAll(".product-group").length === 0) {
+                alert("No data available to print a report. Please add products first.");
+                return;
+            }
+            printModal.classList.remove('hidden');
+        });
+
+        exportBtn.addEventListener('click', exportData);
+
+        getAiSummaryBtn.addEventListener('click', getAiSummary);
+
+
         // Initial state
         switchProductView(null);
         document.getElementById('report-date')?.setAttribute('value', new Date().toISOString().split('T')[0]);
@@ -550,7 +567,6 @@
         
         if ("serviceWorker" in navigator) {
             window.addEventListener("load", () => {
-                // CORRECTED: Use a relative path so it works from any directory.
                 navigator.serviceWorker.register("sw.js").then(registration => {
                     console.log("ServiceWorker registration successful with scope: ", registration.scope);
                 }).catch(err => {
