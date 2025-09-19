@@ -150,6 +150,20 @@
         let uploadedHeadersCache = null;
         let nextGroupId = 0;
 
+        // --- ADDED EVENT LISTENERS FOR BUTTONS ---
+        printReportBtn.addEventListener('click', () => {
+            printModal.classList.remove('hidden');
+        });
+
+        exportBtn.addEventListener('click', () => {
+            exportData();
+        });
+        
+        getAiSummaryBtn.addEventListener('click', () => {
+            getAiSummary();
+        });
+        // --- END OF ADDED EVENT LISTENERS ---
+
         const calculateBatchRow = (batchRow) => {
             const getVal = (selector) => parseFloat(batchRow.querySelector(selector).value) || 0;
             const setVal = (selector, value) => {
@@ -427,13 +441,13 @@
         cancelMappingBtn.addEventListener("click", () => { mappingModal.classList.add("hidden"); csvFileInput.value = ""; });
         
         const exportData = () => {
-             if (calculatorBody.children.length === 0) return alert("No data to export.");
+             if (document.querySelectorAll(".product-group").length === 0) return alert("No data to export.");
             const headers = ["Product Name", "Batch", "MRP", "HSN Code", "Base Rate", "TD %", "Scheme (Paid)", "Scheme (Free)", "Total Quantity", "Taxable Amount", "Current GST %", "Current GST Amt", "GST 5% Amount", "GST Difference"];
             const data = [headers];
             document.querySelectorAll(".product-group").forEach(group => {
                 const productName = group.querySelector(".product-name-group").value;
                 group.querySelectorAll(".batch-row").forEach(row => {
-                    data.push([productName, row.querySelector(".batch-code").value, row.querySelector(".mrp").value, row.querySelector(".hsn-code").value, row.querySelector(".base-rate").value, row.querySelector(".trade-discount").value, row.querySelector(".scheme-paid").value, row.querySelector(".scheme-free").value, row.querySelector(".total-qty").value, row.querySelector(".taxable-amount").textContent, row.querySelector(".current-gst").value, row.querySelector(".current-gst-amt").textContent, row.querySelector(".gst-5-amt").textContent, row.querySelector(".gst-difference").textContent]);
+                    data.push([productName, row.querySelector(".batch-code").value, row.querySelector(".mrp").value, row.querySelector(".hsn-code").value, row.querySelector(".base-rate").value, row.querySelector(".trade-discount").value, row.querySelector(".scheme-paid").value, row.querySelector(".scheme-free").value, row.querySelector(".total-qty").value, row.querySelector(".taxable-amount").textContent.replace('₹', ''), row.querySelector(".current-gst").value, row.querySelector(".current-gst-amt").textContent.replace('₹', ''), row.querySelector(".gst-5-amt").textContent.replace('₹', ''), row.querySelector(".gst-difference").textContent.replace('₹', '')]);
                 });
             });
             const ws = XLSX.utils.aoa_to_sheet(data);
@@ -454,7 +468,7 @@
             rupeesInWords += (n %= 1e7) > 99999 ? inWords(Math.floor(n / 1e5)) + "lakh " : "";
             rupeesInWords += (n %= 1e5) > 999 ? inWords(Math.floor(n / 1e3)) + "thousand " : "";
             rupeesInWords += (n %= 1e3) > 99 ? inWords(Math.floor(n / 100)) + "hundred " : "";
-            rupeesInWords += (n %= 100) > 0 ? inWords(n) : "";
+            rupeesInWords += (n %= 100) > 0 ? "and " + inWords(n) : "";
             let paisaInWords = parseInt(decimalPart) > 0 ? "and " + inWords(parseInt(decimalPart)) + "paisa " : "";
             return `Rupees ${rupeesInWords.trim()} ${paisaInWords.trim()} only`.charAt(0).toUpperCase() + `Rupees ${rupeesInWords.trim()} ${paisaInWords.trim()} only`.slice(1).replace(/\s+/g, " ");
         }
