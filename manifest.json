@@ -1,14 +1,17 @@
 {
 "name": "GST Difference Calculator",
 "short_name": "GST Calc",
+"id": "/gst-calculator-app/",
+"start_url": "/gst-calculator-app/index.html",
+"scope": "/gst-calculator-app/",
 "description": "A tool to calculate GST differences for ITC claims.",
-"start_url": "/index.html",
-"scope": "/",
 "display_override": [
+"window-controls-overlay",
 "standalone",
 "minimal-ui"
 ],
 "display": "standalone",
+"orientation": "portrait-primary",
 "background_color": "#ffffff",
 "theme_color": "#3b82f6",
 "lang": "en-US",
@@ -19,19 +22,48 @@
 "productivity",
 "utilities"
 ],
+"iarc_rating_id": "YOUR_IARC_ID_HERE",
 "prefer_related_applications": false,
 "icons": [
 {
-"src": "https://www.google.com/search?q=https://placehold.co/192x192/3b82f6/ffffff%3Ftext%3DGST",
+"src": "/icons/icon-192x192.png",
 "sizes": "192x192",
 "type": "image/png",
 "purpose": "any maskable"
 },
 {
-"src": "https://www.google.com/search?q=https://placehold.co/512x512/3b82f6/ffffff%3Ftext%3DGST",
+"src": "/icons/icon-512x512.png",
 "sizes": "512x512",
 "type": "image/png",
 "purpose": "any maskable"
 }
-]
+],
+"screenshots": [
+{
+"src": "/screenshots/screenshot-desktop.png",
+"sizes": "1280x720",
+"type": "image/png",
+"form_factor": "wide",
+"label": "Main calculator view on desktop"
+},
+{
+"src": "/screenshots/screenshot-mobile.png",
+"sizes": "720x1280",
+"type": "image/png",
+"form_factor": "narrow",
+"label": "Product entry on mobile"
+}
+],
+"shortcuts": [
+{
+"name": "Add New Product",
+"short_name": "Add Product",
+"description": "Quickly add a new product group to the calculator",
+"url": "index.html#add-product",
+"icons": [{ "src": "/icons/shortcut-icon.png", "sizes": "96x96" }]
+}
+],
+"launch_handler": {
+"client_mode": "focus-existing"
+}
 }
