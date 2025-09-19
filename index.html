@@ -23,43 +23,12 @@
         .dark .batch-row:not(:last-child) { border-bottom: 1px solid #374151; }
         .product-tab.active { background-color: #3b82f6; color: white; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
         .dark .product-tab.active { background-color: #2563eb; }
-        .premium-feature-locked { position: relative; cursor: not-allowed; }
-        .premium-feature-locked::after {
-            content: '⭐ Premium';
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            background-color: #fbbf24;
-            color: #78350f;
-            padding: 2px 6px;
-            border-radius: 9999px;
-            font-size: 10px;
-            font-weight: bold;
-        }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
 
-    <!-- Login Screen -->
-    <div id="login-screen" class="fixed inset-0 bg-gray-200 dark:bg-gray-900 z-50 flex items-center justify-center">
-        <div class="w-full max-w-sm p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl text-center">
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Welcome Back!</h1>
-            <p class="mt-2 text-gray-600 dark:text-gray-400">Sign in to access the GST Calculator.</p>
-            <div class="mt-8 space-y-4">
-                <button id="google-login-btn" class="w-full flex items-center justify-center gap-3 py-3 px-4 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 transition-colors">
-                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-6 h-6">
-                    <span class="font-medium text-gray-700">Sign in with Google</span>
-                </button>
-                <button id="microsoft-login-btn" class="w-full flex items-center justify-center gap-3 py-3 px-4 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 transition-colors">
-                    <img src="https://learn.microsoft.com/en-us/entra/identity-platform/media/howto-add-branding-in-apps/ms-symbollockup_mssymbol_19.svg" alt="Microsoft" class="w-6 h-6">
-                    <span class="font-medium text-gray-700">Sign in with Microsoft</span>
-                </button>
-            </div>
-        </div>
-    </div>
-
     <!-- Main App Container -->
-    <div id="app-container" class="container mx-auto p-4 md:p-6 lg:p-8 hidden">
+    <div id="app-container" class="container mx-auto p-4 md:p-6 lg:p-8">
         <header class="text-center mb-8">
             <h1 class="text-4xl font-bold text-gray-900 dark:text-white tracking-tight">GST Difference Calculator</h1>
             <p class="mt-2 text-lg text-gray-600 dark:text-gray-400">GST अंतर की गणना करने के लिए एक सरल और आधुनिक उपकरण।</p>
@@ -70,18 +39,11 @@
 
         <div class="lg:grid lg:grid-cols-12 lg:gap-8 lg:items-start">
             <div class="lg:col-span-2">
-                 <!-- User Profile & Subscription -->
-                <div id="user-profile" class="p-3 mb-4 bg-white dark:bg-gray-800 rounded-xl shadow-lg text-center">
-                    <p class="text-sm font-medium text-gray-800 dark:text-gray-200 truncate" id="user-name">Welcome!</p>
-                    <div id="subscription-status"></div>
-                    <button id="logout-btn" class="mt-2 text-xs text-red-500 hover:underline">Logout</button>
-                </div>
-
                 <button id="add-product-group-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-300 flex items-center justify-center gap-2 shadow-lg mb-4">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" /></svg>
                     Add Product
                 </button>
-                <div id="product-tabs" class="space-y-2 lg:max-h-[calc(100vh-380px)] overflow-y-auto custom-scrollbar pr-2"></div>
+                <div id="product-tabs" class="space-y-2 lg:max-h-[calc(100vh-280px)] overflow-y-auto custom-scrollbar pr-2"></div>
             </div>
 
             <div class="w-full lg:col-span-6 mt-6 lg:mt-0">
@@ -110,7 +72,13 @@
                 </div>
 
                  <div id="ai-insights-section" class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
-                    <!-- Content will be updated based on subscription status -->
+                    <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500"><path d="M12 3V1m0 20v-2m4.6-4.6.7.7M6.4 17.6l.7.7M21 12h2M1 12h2M6.4 6.4l-.7-.7m12.3 12.3-.7-.7"/><circle cx="12" cy="12" r="4"/></svg>
+                        AI-Powered Insights
+                    </h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Gemini AI से अपनी रिपोर्ट का एक पेशेवर सारांश प्राप्त करें।</p>
+                    <button id="get-ai-summary-btn" class="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-bold py-2 px-6 rounded-lg">Generate Summary</button>
+                    <div id="ai-summary-container" class="mt-4 hidden"><div id="ai-summary-loader" class="flex items-center justify-center p-4"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div><p class="ml-2 text-sm text-gray-500">Generating summary...</p></div><div id="ai-summary-output" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap"></div></div>
                 </div>
 
                 <div class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
@@ -119,7 +87,9 @@
                 </div>
 
                 <div id="reports-section" class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
-                    <!-- Content will be updated based on subscription status -->
+                    <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Reports & Export</h2>
+                    <div class="mb-4"><label for="report-date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Report Date</label><input type="date" id="report-date" class="input mt-1 block w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600"></div>
+                    <div class="flex flex-wrap gap-4"><button id="print-report-btn" class="flex-grow bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg">Print Report</button><button id="export-btn" class="flex-grow bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded-lg">Export to Excel</button></div>
                 </div>
                 
                 <div class="text-center text-xs text-gray-400 dark:text-gray-500 pt-4">
@@ -134,115 +104,6 @@
     <div id="header-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-75 overflow-y-auto h-full w-full z-50"><div class="relative top-1/2 -translate-y-1/2 mx-auto p-6 border w-full max-w-4xl shadow-lg rounded-md bg-white dark:bg-gray-900"><h3 class="text-xl leading-6 font-medium text-gray-900 dark:text-white mb-2">Step 1: Preview Data & Select Header Row</h3><p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Aapki file ka preview neeche hai. Kripya batayein ki column headers (jaise 'NameToPrint', 'HSN/SAC') kis row number mein hain.</p><div class="flex items-center gap-4 mb-4"><label for="header-row-input" class="font-semibold text-sm text-gray-700 dark:text-gray-300">Header is on Row:</label><input type="number" id="header-row-input" value="1" min="1" class="w-24 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600"></div><div id="data-preview-container" class="border rounded-lg overflow-auto max-h-80 bg-gray-50 dark:bg-gray-800"></div><div class="items-center px-4 py-3 mt-6 text-right space-x-2"><button id="cancel-header-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-md">Cancel</button><button id="confirm-header-btn" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-semibold">Next: Map Columns &rarr;</button></div></div></div>
     <div id="mapping-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-75 overflow-y-auto h-full w-full z-50"><div class="relative top-1/2 -translate-y-1/2 mx-auto p-6 border w-full max-w-2xl shadow-lg rounded-md bg-white dark:bg-gray-900"><h3 class="text-xl leading-6 font-medium text-gray-900 dark:text-white mb-4">Step 2: Match Your Columns</h3><p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Kripya apni file ke columns (right) ko application ke zaroori fields (left) se match karein.</p><div id="mapping-container" class="space-y-3 max-h-96 overflow-y-auto pr-2 custom-scrollbar"></div><div class="items-center px-4 py-3 mt-6 text-right space-x-2"><button id="cancel-mapping-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-md">Cancel</button><button id="confirm-mapping-btn" class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-semibold">Confirm Mapping & Process</button></div></div></div>
     <div id="license-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-75 overflow-y-auto h-full w-full z-50"><div class="relative top-1/2 -translate-y-1/2 mx-auto p-6 border w-full max-w-3xl shadow-lg rounded-md bg-white dark:bg-gray-900"><div class="flex justify-between items-start"><h3 class="text-xl leading-6 font-medium text-gray-900 dark:text-white">Software License Agreement</h3><button id="close-license-modal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-2xl leading-none">&times;</button></div><div class="mt-4 text-sm text-gray-600 dark:text-gray-300 max-h-96 overflow-y-auto custom-scrollbar pr-4"><p class="font-bold">Copyright (c) 2025 Ram Prakash. All Rights Reserved.</p><p class="mt-2">This is a legal agreement between you and the copyright owner (Ram Prakash) for the software product "GST Difference Calculator". By using the Software, you agree to be bound by the terms of this license.</p><h4 class="font-bold mt-4">1. Grant of License</h4><p>The Software is licensed, not sold. You are granted a personal, non-exclusive, non-transferable, limited license to use the Software for your personal or internal business purposes.</p><h4 class="font-bold mt-4">2. Restrictions</h4><p>You are expressly prohibited from: Copying, distributing, modifying, reverse engineering, decompiling, sublicensing, renting, leasing, or lending the Software.</p><h4 class="font-bold mt-4">3. Disclaimer of Warranty</h4><p>The Software is provided "AS IS" without warranty of any kind.</p><h4 class="font-bold mt-4">4. Limitation of Liability</h4><p>In no event shall the copyright owner be liable for any special, incidental, indirect, or consequential damages whatsoever arising out of the use of or inability to use the software product.</p></div></div></div>
-
-    <!-- Firebase SDKs -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, onAuthStateChanged, GoogleAuthProvider, OAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-        const firebaseConfig = {
-  apiKey: "AIzaSyAiV-zECnw7q5s7zEnW-P54-2PUq_h0EqE",
-  authDomain: "gst-ai-calculator.firebaseapp.com",
-  projectId: "gst-ai-calculator",
-  storageBucket: "gst-ai-calculator.firebasestorage.app",
-  messagingSenderId: "1029259997266",
-  appId: "1:1029259997266:web:ebed62562aa35ee664ef8b"
-};
-        let app, auth, db;
-        try {
-            app = initializeApp(firebaseConfig);
-            auth = getAuth(app);
-            db = getFirestore(app);
-        } catch (e) {
-            console.error("Firebase initialization failed. Please check your firebaseConfig.", e);
-            alert("Firebase config is not valid. The app cannot start. Please contact support.");
-            document.getElementById('google-login-btn').style.display = 'none';
-            document.getElementById('microsoft-login-btn').style.display = 'none';
-        }
-        const googleProvider = new GoogleAuthProvider();
-        const microsoftProvider = new OAuthProvider('microsoft.com');
-        const loginScreen = document.getElementById('login-screen');
-        const appContainer = document.getElementById('app-container');
-        const googleLoginBtn = document.getElementById('google-login-btn');
-        const microsoftLoginBtn = document.getElementById('microsoft-login-btn');
-        const logoutBtn = document.getElementById('logout-btn');
-        const userNameEl = document.getElementById('user-name');
-        const subscriptionStatusEl = document.getElementById('subscription-status');
-        const aiInsightsSection = document.getElementById('ai-insights-section');
-        const reportsSection = document.getElementById('reports-section');
-        const updateUiForSubscription = (isPremium) => {
-            if (isPremium) {
-                subscriptionStatusEl.innerHTML = `<span class="text-xs font-bold bg-green-100 text-green-800 py-1 px-2 rounded-full">⭐ Premium User</span>`;
-                aiInsightsSection.innerHTML = `
-                    <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500"><path d="M12 3V1m0 20v-2m4.6-4.6.7.7M6.4 17.6l.7.7M21 12h2M1 12h2M6.4 6.4l-.7-.7m12.3 12.3-.7-.7"/><circle cx="12" cy="12" r="4"/></svg>
-                        AI-Powered Insights
-                    </h2>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Gemini AI से अपनी रिपोर्ट का एक पेशेवर सारांश प्राप्त करें।</p>
-                    <button id="get-ai-summary-btn" class="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-bold py-2 px-6 rounded-lg">Generate Summary</button>
-                    <div id="ai-summary-container" class="mt-4 hidden"><div id="ai-summary-loader" class="flex items-center justify-center p-4"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div><p class="ml-2 text-sm text-gray-500">Generating summary...</p></div><div id="ai-summary-output" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap"></div></div>`;
-                document.getElementById('get-ai-summary-btn').addEventListener('click', () => getAiSummary());
-                reportsSection.innerHTML = `
-                     <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Reports & Export</h2>
-                     <div class="mb-4"><label for="report-date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Report Date</label><input type="date" id="report-date" class="input mt-1 block w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600"></div>
-                    <div class="flex flex-wrap gap-4"><button id="print-report-btn" class="flex-grow bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg">Print Report</button><button id="export-btn" class="flex-grow bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded-lg">Export to Excel</button></div>`;
-                document.getElementById('report-date').value = (new Date).toISOString().split("T")[0];
-                document.getElementById('print-report-btn').addEventListener('click', () => { document.querySelector(".product-group") ? printModal.classList.remove("hidden") : alert("Please add product details to print.") });
-                document.getElementById('export-btn').addEventListener('click', exportData);
-            } else {
-                subscriptionStatusEl.innerHTML = `<button id="go-premium-btn" class="text-xs font-bold bg-amber-400 text-amber-900 py-1 px-3 rounded-full hover:bg-amber-500 transition-colors">Go Premium</button>`;
-                document.getElementById('go-premium-btn').addEventListener('click', upgradeToPremium);
-                aiInsightsSection.innerHTML = `
-                    <div class="premium-feature-locked opacity-50">
-                        <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">AI-Powered Insights</h2>
-                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Unlock powerful AI summaries with our Premium plan.</p>
-                        <button class="w-full bg-gray-300 text-gray-500 font-bold py-2 px-6 rounded-lg cursor-not-allowed">Generate Summary</button>
-                    </div>`;
-                reportsSection.innerHTML = `
-                    <div class="premium-feature-locked opacity-50">
-                        <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Reports & Export</h2>
-                         <div class="mb-4"><label class="block text-sm font-medium">Report Date</label><input type="date" class="input mt-1 block w-full bg-gray-200 border-gray-300 rounded-lg p-2.5 cursor-not-allowed" disabled></div>
-                        <div class="flex flex-wrap gap-4"><button class="flex-grow bg-gray-300 text-gray-500 font-bold py-2 px-6 rounded-lg cursor-not-allowed">Print Report</button><button class="flex-grow bg-gray-300 text-gray-500 font-bold py-2 px-6 rounded-lg cursor-not-allowed">Export to Excel</button></div>
-                    </div>`;
-            }
-        }
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                loginScreen.classList.add('hidden');
-                appContainer.classList.remove('hidden');
-                userNameEl.textContent = user.displayName || user.email;
-                const userRef = doc(db, 'users', user.uid);
-                const docSnap = await getDoc(userRef);
-                if (docSnap.exists() && docSnap.data().isPremium) {
-                    updateUiForSubscription(true);
-                } else {
-                    updateUiForSubscription(false);
-                }
-            } else {
-                loginScreen.classList.remove('hidden');
-                appContainer.classList.add('hidden');
-            }
-        });
-        const handleSignIn = (provider) => {
-            signInWithPopup(auth, provider)
-                .catch((error) => {
-                    console.error("Authentication failed:", error);
-                    alert(`Sign-in failed: ${error.message}`);
-                });
-        };
-        googleLoginBtn.addEventListener('click', () => handleSignIn(googleProvider));
-        microsoftLoginBtn.addEventListener('click', () => handleSignIn(microsoftProvider));
-        logoutBtn.addEventListener('click', () => signOut(auth));
-        const upgradeToPremium = async () => {
-            const user = auth.currentUser;
-            if (!user) return;
-            const userRef = doc(db, "users", user.uid);
-            await setDoc(userRef, { isPremium: true }, { merge: true });
-            alert("Congratulations! You are now a Premium user.");
-            updateUiForSubscription(true);
-        };
-        window.initializeApp = initializeApp;
-    </script>
     
     <script>
         /*
@@ -281,6 +142,10 @@
         const aiSummaryContainer = document.getElementById("ai-summary-container");
         const aiSummaryLoader = document.getElementById("ai-summary-loader");
         const aiSummaryOutput = document.getElementById("ai-summary-output");
+        const getAiSummaryBtn = document.getElementById('get-ai-summary-btn');
+        const exportBtn = document.getElementById('export-btn');
+        const printReportBtn = document.getElementById('print-report-btn');
+        
         let uploadedDataCache = null;
         let uploadedHeadersCache = null;
         let nextGroupId = 0;
@@ -369,13 +234,11 @@
             groupCard.className = "product-group bg-white dark:bg-gray-800 rounded-xl shadow-lg transition-all duration-300";
             groupCard.innerHTML = `<div class="p-4 border-b border-gray-200 dark:border-gray-700"><input type="text" class="product-name-group text-lg font-bold bg-transparent focus:outline-none focus:ring-0 border-0 w-full text-gray-900 dark:text-white" placeholder="Enter Product Name" value="${data.product||""}"></div><div class="batches-container"></div><div class="p-2 text-center"><button class="add-batch-btn text-sm text-blue-600 dark:text-blue-400 font-semibold hover:underline">+ Add Batch/MRP</button></div>`;
             calculatorBody.appendChild(groupCard);
-            
             const tabButton = document.createElement("button");
             tabButton.dataset.targetId = groupId;
             tabButton.className = "product-tab w-full text-left p-3 rounded-lg transition-colors duration-200 flex justify-between items-center bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600";
             tabButton.innerHTML = `<span class="font-semibold truncate pr-2">${data.product||"New Product"}</span><div class="remove-group-btn text-gray-400 hover:text-red-500 opacity-50 hover:opacity-100 p-1 flex-shrink-0"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg></div>`;
             productTabs.appendChild(tabButton);
-
             const nameInput = groupCard.querySelector(".product-name-group");
             nameInput.addEventListener("input", () => {
                 tabButton.querySelector("span").textContent = nameInput.value || "New Product"
@@ -678,10 +541,13 @@
             }
         }
         
+        // Initial state
         switchProductView(null);
+        document.getElementById('report-date')?.setAttribute('value', new Date().toISOString().split('T')[0]);
         licenseTrigger.addEventListener("click", e => { e.preventDefault(); licenseModal.classList.remove("hidden"); });
         closeLicenseModal.addEventListener("click", () => licenseModal.classList.add("hidden"));
         licenseModal.addEventListener("click", e => { if (e.target === licenseModal) { licenseModal.classList.add("hidden"); } });
+        
         if ("serviceWorker" in navigator) {
             window.addEventListener("load", () => {
                 navigator.serviceWorker.register("/sw.js").then(registration => {
@@ -694,4 +560,3 @@
     </script>
 </body>
 </html>
-
