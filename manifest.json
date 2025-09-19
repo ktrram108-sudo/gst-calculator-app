@@ -1,29 +1,25 @@
 {
 "name": "GST Difference Calculator",
 "short_name": "GST Calc",
-"id": "/gst-calculator-app/",
-"start_url": "/gst-calculator-app/index.html",
-"scope": "/gst-calculator-app/",
-"description": "A tool to calculate GST differences for ITC claims.",
+"description": "A modern tool to accurately calculate GST differences for ITC claims after tax slab revisions.",
+"start_url": ".",
+"display": "standalone",
 "display_override": [
 "window-controls-overlay",
-"standalone",
 "minimal-ui"
 ],
-"display": "standalone",
-"orientation": "portrait-primary",
 "background_color": "#ffffff",
-"theme_color": "#3b82f6",
-"lang": "en-US",
+"theme_color": "#4F46E5",
+"orientation": "portrait-primary",
+"lang": "en-IN",
 "dir": "ltr",
+"scope": "/",
+"id": "/gst-calculator-app/",
 "categories": [
 "business",
 "finance",
-"productivity",
 "utilities"
 ],
-"iarc_rating_id": "YOUR_IARC_ID_HERE",
-"prefer_related_applications": false,
 "icons": [
 {
 "src": "icons/icon-192x192.png",
@@ -37,12 +33,6 @@
 "type": "image/png",
 "purpose": "any maskable"
 }
-{
-"src": "icons/icon-512x5121.png",
-"sizes": "512x512",
-"type": "image/png",
-"purpose": "any maskable"
-}
 ],
 "screenshots": [
 {
@@ -50,37 +40,35 @@
 "sizes": "1280x720",
 "type": "image/png",
 "form_factor": "wide",
-"label": "Main calculator view on desktop"
+"label": "Main calculator view on a desktop computer."
 },
+{
+"src": "screenshots/screenshot-mobile.png",
+"sizes": "400x800",
+"type": "image/png",
+"form_factor": "narrow",
+"label": "App view on a mobile device."
+},
+{
 "src": "screenshots/screenshot-pdf.png",
 "sizes": "1280x720",
 "type": "image/png",
 "form_factor": "wide",
-"label": "Main calculator view on desktop"
-},
-{
-"src": "screenshots/screenshot-mobile.png",
-"sizes": "720x1280",
-"type": "image/png",
-"form_factor": "narrow",
-"label": "Product entry on mobile"
+"label": "Premium PDF report generation feature."
 }
 ],
 "shortcuts": [
 {
 "name": "Add New Product",
-"short_name": "Add Product",
-"description": "Quickly add a new product group to the calculator",
-"url": "index.html#add-product",
-"icons": [{ "src": "icons/shortcut-icon.png", "sizes": "96x96" }]
+"short_name": "New Product",
+"description": "Quickly start by adding a new product.",
+"url": "/#new-product",
+"icons": [{ "src": "icons/icon-192x192.png", "sizes": "192x192" }]
 }
 ],
-"launch_handler": {
-"client_mode": "focus-existing"
-},
 "file_handlers": [
 {
-"action": "index.html",
+"action": "/upload",
 "accept": {
 "text/csv": [".csv"],
 "application/vnd.ms-excel": [".xls"],
@@ -89,7 +77,7 @@
 }
 ],
 "share_target": {
-"action": "index.html",
+"action": "/shared-data",
 "method": "GET",
 "params": {
 "title": "title",
