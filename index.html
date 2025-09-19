@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GST Difference Calculator</title>
+    <link rel="manifest" href="manifest.json">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Teko:wght@400;700&family=Roboto+Slab:wght@400;700&family=Great+Vibes&family=Noto+Serif:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .header-highlight { background-color: #dbeafe !important; box-shadow: inset 4px 0 0 #3b82f6; }
+        .dark .header-highlight { background-color: #1e3a8a !important; }
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+        .dark .custom-scrollbar::-webkit-scrollbar-track { background: #1f2937; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+        .batch-row:not(:last-child) { border-bottom: 1px solid #e5e7eb; }
+        .dark .batch-row:not(:last-child) { border-bottom: 1px solid #374151; }
+        .product-tab.active { background-color: #3b82f6; color: white; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
+        .dark .product-tab.active { background-color: #2563eb; }
+        .premium-feature-locked { position: relative; cursor: not-allowed; }
+        .premium-feature-locked::after {
+            content: '⭐ Premium';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background-color: #fbbf24;
+            color: #78350f;
+            padding: 2px 6px;
+            border-radius: 9999px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+
+    <!-- Login Screen -->
+    <div id="login-screen" class="fixed inset-0 bg-gray-200 dark:bg-gray-900 z-50 flex items-center justify-center">
+        <div class="w-full max-w-sm p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl text-center">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Welcome Back!</h1>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">Sign in to access the GST Calculator.</p>
+            <div class="mt-8 space-y-4">
+                <button id="google-login-btn" class="w-full flex items-center justify-center gap-3 py-3 px-4 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 transition-colors">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-6 h-6">
+                    <span class="font-medium text-gray-700">Sign in with Google</span>
+                </button>
+                <button id="microsoft-login-btn" class="w-full flex items-center justify-center gap-3 py-3 px-4 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 transition-colors">
+                    <img src="https://learn.microsoft.com/en-us/entra/identity-platform/media/howto-add-branding-in-apps/ms-symbollockup_mssymbol_19.svg" alt="Microsoft" class="w-6 h-6">
+                    <span class="font-medium text-gray-700">Sign in with Microsoft</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="app-container" class="container mx-auto p-4 md:p-6 lg:p-8 hidden">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-900 dark:text-white tracking-tight">GST Difference Calculator</h1>
+            <p class="mt-2 text-lg text-gray-600 dark:text-gray-400">GST अंतर की गणना करने के लिए एक सरल और आधुनिक उपकरण।</p>
+             <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                <span>Works best in Chrome browser.</span> | <span>यह क्रोम ब्राउज़र में सबसे अच्छा काम करता है।</span>
+            </div>
+        </header>
+
+        <div class="lg:grid lg:grid-cols-12 lg:gap-8 lg:items-start">
+            <div class="lg:col-span-2">
+                 <!-- User Profile & Subscription -->
+                <div id="user-profile" class="p-3 mb-4 bg-white dark:bg-gray-800 rounded-xl shadow-lg text-center">
+                    <p class="text-sm font-medium text-gray-800 dark:text-gray-200 truncate" id="user-name">Welcome!</p>
+                    <div id="subscription-status"></div>
+                    <button id="logout-btn" class="mt-2 text-xs text-red-500 hover:underline">Logout</button>
+                </div>
+
+                <button id="add-product-group-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-300 flex items-center justify-center gap-2 shadow-lg mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+                    Add Product
+                </button>
+                <div id="product-tabs" class="space-y-2 lg:max-h-[calc(100vh-380px)] overflow-y-auto custom-scrollbar pr-2"></div>
+            </div>
+
+            <div class="w-full lg:col-span-6 mt-6 lg:mt-0">
+                <div id="calculator-body" class="space-y-6">
+                     <div id="no-product-view" class="text-center p-10 bg-white dark:bg-gray-800 rounded-xl shadow-lg h-full flex flex-col justify-center items-center min-h-[300px]">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-300 dark:text-gray-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300">No Product Selected</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">"Add Product" पर क्लिक करें, या लिस्ट से कोई प्रोडक्ट चुनें।</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="w-full lg:col-span-4 lg:sticky lg:top-8 space-y-6 mt-8 lg:mt-0">
+                <div class="p-5 rounded-xl shadow-lg bg-white dark:bg-gray-800">
+                    <h3 class="text-xl font-bold mb-4 text-gray-900 dark:text-white border-b pb-2">Calculation Summary</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm">
+                        <span class="font-medium text-gray-600 dark:text-gray-400">Total Taxable Amount:</span><span id="total-taxable-amount" class="font-semibold text-gray-900 dark:text-white text-left sm:text-right">₹0.00</span>
+                        <span class="font-medium text-gray-600 dark:text-gray-400">Total Discount:</span><span id="total-discount-amount" class="font-semibold text-gray-900 dark:text-white text-left sm:text-right">₹0.00</span>
+                        <span class="font-medium text-gray-600 dark:text-gray-400 col-span-2 sm:col-span-1 border-t pt-2 mt-1">Total GST @ 5% (Old):</span><span id="total-old-gst-5" class="font-semibold text-gray-900 dark:text-white text-left sm:text-right border-t pt-2 mt-1">₹0.00</span>
+                        <span class="font-medium text-gray-600 dark:text-gray-400">Total GST @ 12%:</span><span id="total-old-gst-12" class="font-semibold text-gray-900 dark:text-white text-left sm:text-right">₹0.00</span>
+                        <span class="font-medium text-gray-600 dark:text-gray-400">Total GST @ 18%:</span><span id="total-old-gst-18" class="font-semibold text-gray-900 dark:text-white text-left sm:text-right">₹0.00</span>
+                        <span class="font-semibold text-gray-700 dark:text-gray-300 col-span-2 sm:col-span-1 border-t pt-2 mt-1">Total Current GST:</span><span id="total-current-gst" class="font-bold text-gray-900 dark:text-white text-left sm:text-right border-t pt-2 mt-1">₹0.00</span>
+                        <span class="font-semibold text-gray-700 dark:text-gray-300">Total 5% GST (New):</span><span id="total-5-gst" class="font-bold text-gray-900 dark:text-white text-left sm:text-right">₹0.00</span>
+                        <span class="text-lg font-bold text-blue-600 dark:text-blue-400 col-span-2 sm:col-span-1 border-t-2 border-blue-500 pt-3 mt-2">Total GST Difference:</span><span id="total-gst-difference" class="text-2xl font-bold text-blue-600 dark:text-blue-400 text-left sm:text-right border-t-2 border-blue-500 pt-3 mt-2">₹0.00</span>
+                    </div>
+                </div>
+
+                 <div id="ai-insights-section" class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
+                    <!-- Content will be updated based on subscription status -->
+                </div>
+
+                <div class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
+                    <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Upload Data</h2>
+                    <div class="flex flex-col sm:flex-row gap-4 items-center"><input type="file" id="csv-file-input" accept=".csv, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="block w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 cursor-pointer dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"><button id="upload-btn" class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg">Upload</button></div>
+                </div>
+
+                <div id="reports-section" class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
+                    <!-- Content will be updated based on subscription status -->
+                </div>
+                
+                <div class="text-center text-xs text-gray-400 dark:text-gray-500 pt-4">
+                    <p>&copy; 2025 Ram Prakash. <a href="#" id="license-trigger" class="hover:underline">All Rights Reserved.</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modals -->
+    <div id="print-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50"><div class="relative top-1/2 -translate-y-1/2 mx-auto p-5 border w-full max-w-lg shadow-lg rounded-md bg-white dark:bg-gray-900"><div class="mt-3"><h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white mb-4">Enter Your & Vendor's Details</h3><div class="space-y-4"><div><h4 class="text-md font-semibold text-gray-800 dark:text-gray-200 mb-2 border-b pb-1">Your Company Details</h4><label for="your-company-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mt-2">Your Company Name</label><input type="text" id="your-company-name" class="input mt-1 block w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600" placeholder="e.g., Your Business LLC"><label for="your-company-gstin" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mt-2">Your GSTIN</label><input type="text" id="your-company-gstin" class="input mt-1 block w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600" placeholder="Your GST Identification Number"><label for="authorized-signatory" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mt-2">Authorized Signatory</label><input type="text" id="authorized-signatory" class="input mt-1 block w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600" placeholder="e.g., John Doe"></div><div><h4 class="text-md font-semibold text-gray-800 dark:text-gray-200 mb-2 pt-4 border-b pb-1">Vendor Details</h4><label for="vendor-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mt-2">Vendor Name</label><input type="text" id="vendor-name" class="input mt-1 block w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600" placeholder="Vendor Company Name"><label for="vendor-gstin" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mt-2">Vendor GSTIN (Optional)</label><input type="text" id="vendor-gstin" class="input mt-1 block w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600" placeholder="Vendor's GSTIN"></div></div><div class="items-center px-4 py-3 mt-4 text-right"><button id="cancel-print-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-md mr-2">Cancel</button><button id="confirm-print-btn" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Generate & Print</button></div></div></div></div>
+    <div id="header-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-75 overflow-y-auto h-full w-full z-50"><div class="relative top-1/2 -translate-y-1/2 mx-auto p-6 border w-full max-w-4xl shadow-lg rounded-md bg-white dark:bg-gray-900"><h3 class="text-xl leading-6 font-medium text-gray-900 dark:text-white mb-2">Step 1: Preview Data & Select Header Row</h3><p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Aapki file ka preview neeche hai. Kripya batayein ki column headers (jaise 'NameToPrint', 'HSN/SAC') kis row number mein hain.</p><div class="flex items-center gap-4 mb-4"><label for="header-row-input" class="font-semibold text-sm text-gray-700 dark:text-gray-300">Header is on Row:</label><input type="number" id="header-row-input" value="1" min="1" class="w-24 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600"></div><div id="data-preview-container" class="border rounded-lg overflow-auto max-h-80 bg-gray-50 dark:bg-gray-800"></div><div class="items-center px-4 py-3 mt-6 text-right space-x-2"><button id="cancel-header-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-md">Cancel</button><button id="confirm-header-btn" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-semibold">Next: Map Columns &rarr;</button></div></div></div>
+    <div id="mapping-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-75 overflow-y-auto h-full w-full z-50"><div class="relative top-1/2 -translate-y-1/2 mx-auto p-6 border w-full max-w-2xl shadow-lg rounded-md bg-white dark:bg-gray-900"><h3 class="text-xl leading-6 font-medium text-gray-900 dark:text-white mb-4">Step 2: Match Your Columns</h3><p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Kripya apni file ke columns (right) ko application ke zaroori fields (left) se match karein.</p><div id="mapping-container" class="space-y-3 max-h-96 overflow-y-auto pr-2 custom-scrollbar"></div><div class="items-center px-4 py-3 mt-6 text-right space-x-2"><button id="cancel-mapping-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-md">Cancel</button><button id="confirm-mapping-btn" class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-semibold">Confirm Mapping & Process</button></div></div></div>
+    <div id="license-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-75 overflow-y-auto h-full w-full z-50"><div class="relative top-1/2 -translate-y-1/2 mx-auto p-6 border w-full max-w-3xl shadow-lg rounded-md bg-white dark:bg-gray-900"><div class="flex justify-between items-start"><h3 class="text-xl leading-6 font-medium text-gray-900 dark:text-white">Software License Agreement</h3><button id="close-license-modal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-2xl leading-none">&times;</button></div><div class="mt-4 text-sm text-gray-600 dark:text-gray-300 max-h-96 overflow-y-auto custom-scrollbar pr-4"><p class="font-bold">Copyright (c) 2025 Ram Prakash. All Rights Reserved.</p><p class="mt-2">This is a legal agreement between you and the copyright owner (Ram Prakash) for the software product "GST Difference Calculator". By using the Software, you agree to be bound by the terms of this license.</p><h4 class="font-bold mt-4">1. Grant of License</h4><p>The Software is licensed, not sold. You are granted a personal, non-exclusive, non-transferable, limited license to use the Software for your personal or internal business purposes.</p><h4 class="font-bold mt-4">2. Restrictions</h4><p>You are expressly prohibited from: Copying, distributing, modifying, reverse engineering, decompiling, sublicensing, renting, leasing, or lending the Software.</p><h4 class="font-bold mt-4">3. Disclaimer of Warranty</h4><p>The Software is provided "AS IS" without warranty of any kind.</p><h4 class="font-bold mt-4">4. Limitation of Liability</h4><p>In no event shall the copyright owner be liable for any special, incidental, indirect, or consequential damages whatsoever arising out of the use of or inability to use the software product.</p></div></div></div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged, GoogleAuthProvider, OAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        const firebaseConfig = {
+  apiKey: "AIzaSyAiV-zECnw7q5s7zEnW-P54-2PUq_h0EqE",
+  authDomain: "gst-ai-calculator.firebaseapp.com",
+  projectId: "gst-ai-calculator",
+  storageBucket: "gst-ai-calculator.firebasestorage.app",
+  messagingSenderId: "1029259997266",
+  appId: "1:1029259997266:web:ebed62562aa35ee664ef8b"
+};
+        let app, auth, db;
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+        } catch (e) {
+            console.error("Firebase initialization failed. Please check your firebaseConfig.", e);
+            alert("Firebase config is not valid. The app cannot start. Please contact support.");
+            document.getElementById('google-login-btn').style.display = 'none';
+            document.getElementById('microsoft-login-btn').style.display = 'none';
+        }
+        const googleProvider = new GoogleAuthProvider();
+        const microsoftProvider = new OAuthProvider('microsoft.com');
+        const loginScreen = document.getElementById('login-screen');
+        const appContainer = document.getElementById('app-container');
+        const googleLoginBtn = document.getElementById('google-login-btn');
+        const microsoftLoginBtn = document.getElementById('microsoft-login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const userNameEl = document.getElementById('user-name');
+        const subscriptionStatusEl = document.getElementById('subscription-status');
+        const aiInsightsSection = document.getElementById('ai-insights-section');
+        const reportsSection = document.getElementById('reports-section');
+        const updateUiForSubscription = (isPremium) => {
+            if (isPremium) {
+                subscriptionStatusEl.innerHTML = `<span class="text-xs font-bold bg-green-100 text-green-800 py-1 px-2 rounded-full">⭐ Premium User</span>`;
+                aiInsightsSection.innerHTML = `
+                    <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500"><path d="M12 3V1m0 20v-2m4.6-4.6.7.7M6.4 17.6l.7.7M21 12h2M1 12h2M6.4 6.4l-.7-.7m12.3 12.3-.7-.7"/><circle cx="12" cy="12" r="4"/></svg>
+                        AI-Powered Insights
+                    </h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Gemini AI से अपनी रिपोर्ट का एक पेशेवर सारांश प्राप्त करें।</p>
+                    <button id="get-ai-summary-btn" class="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-bold py-2 px-6 rounded-lg">Generate Summary</button>
+                    <div id="ai-summary-container" class="mt-4 hidden"><div id="ai-summary-loader" class="flex items-center justify-center p-4"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div><p class="ml-2 text-sm text-gray-500">Generating summary...</p></div><div id="ai-summary-output" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap"></div></div>`;
+                document.getElementById('get-ai-summary-btn').addEventListener('click', () => getAiSummary());
+                reportsSection.innerHTML = `
+                     <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Reports & Export</h2>
+                     <div class="mb-4"><label for="report-date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Report Date</label><input type="date" id="report-date" class="input mt-1 block w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600"></div>
+                    <div class="flex flex-wrap gap-4"><button id="print-report-btn" class="flex-grow bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg">Print Report</button><button id="export-btn" class="flex-grow bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded-lg">Export to Excel</button></div>`;
+                document.getElementById('report-date').value = (new Date).toISOString().split("T")[0];
+                document.getElementById('print-report-btn').addEventListener('click', () => { document.querySelector(".product-group") ? printModal.classList.remove("hidden") : alert("Please add product details to print.") });
+                document.getElementById('export-btn').addEventListener('click', exportData);
+            } else {
+                subscriptionStatusEl.innerHTML = `<button id="go-premium-btn" class="text-xs font-bold bg-amber-400 text-amber-900 py-1 px-3 rounded-full hover:bg-amber-500 transition-colors">Go Premium</button>`;
+                document.getElementById('go-premium-btn').addEventListener('click', upgradeToPremium);
+                aiInsightsSection.innerHTML = `
+                    <div class="premium-feature-locked opacity-50">
+                        <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">AI-Powered Insights</h2>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Unlock powerful AI summaries with our Premium plan.</p>
+                        <button class="w-full bg-gray-300 text-gray-500 font-bold py-2 px-6 rounded-lg cursor-not-allowed">Generate Summary</button>
+                    </div>`;
+                reportsSection.innerHTML = `
+                    <div class="premium-feature-locked opacity-50">
+                        <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Reports & Export</h2>
+                         <div class="mb-4"><label class="block text-sm font-medium">Report Date</label><input type="date" class="input mt-1 block w-full bg-gray-200 border-gray-300 rounded-lg p-2.5 cursor-not-allowed" disabled></div>
+                        <div class="flex flex-wrap gap-4"><button class="flex-grow bg-gray-300 text-gray-500 font-bold py-2 px-6 rounded-lg cursor-not-allowed">Print Report</button><button class="flex-grow bg-gray-300 text-gray-500 font-bold py-2 px-6 rounded-lg cursor-not-allowed">Export to Excel</button></div>
+                    </div>`;
+            }
+        }
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                loginScreen.classList.add('hidden');
+                appContainer.classList.remove('hidden');
+                userNameEl.textContent = user.displayName || user.email;
+                const userRef = doc(db, 'users', user.uid);
+                const docSnap = await getDoc(userRef);
+                if (docSnap.exists() && docSnap.data().isPremium) {
+                    updateUiForSubscription(true);
+                } else {
+                    updateUiForSubscription(false);
+                }
+            } else {
+                loginScreen.classList.remove('hidden');
+                appContainer.classList.add('hidden');
+            }
+        });
+        const handleSignIn = (provider) => {
+            signInWithPopup(auth, provider)
+                .catch((error) => {
+                    console.error("Authentication failed:", error);
+                    alert(`Sign-in failed: ${error.message}`);
+                });
+        };
+        googleLoginBtn.addEventListener('click', () => handleSignIn(googleProvider));
+        microsoftLoginBtn.addEventListener('click', () => handleSignIn(microsoftProvider));
+        logoutBtn.addEventListener('click', () => signOut(auth));
+        const upgradeToPremium = async () => {
+            const user = auth.currentUser;
+            if (!user) return;
+            const userRef = doc(db, "users", user.uid);
+            await setDoc(userRef, { isPremium: true }, { merge: true });
+            alert("Congratulations! You are now a Premium user.");
+            updateUiForSubscription(true);
+        };
+        window.initializeApp = initializeApp;
+    </script>
+    
+    <script>
+        /*
+         * GST Difference Calculator - Core App Logic
+         * Copyright (c) 2025 Ram Prakash. All Rights Reserved.
+         */
+        'use strict';
+        const licenseModal = document.getElementById('license-modal');
+        const licenseTrigger = document.getElementById('license-trigger');
+        const closeLicenseModal = document.getElementById('close-license-modal');
+        const calculatorBody = document.getElementById("calculator-body");
+        const productTabs = document.getElementById("product-tabs");
+        const addProductGroupBtn = document.getElementById("add-product-group-btn");
+        const totalTaxableAmountEl = document.getElementById("total-taxable-amount");
+        const totalDiscountAmountEl = document.getElementById("total-discount-amount");
+        const totalCurrentGstEl = document.getElementById("total-current-gst");
+        const total5GstEl = document.getElementById("total-5-gst");
+        const totalGstDifferenceEl = document.getElementById("total-gst-difference");
+        const totalOldGst5El = document.getElementById("total-old-gst-5");
+        const totalOldGst12El = document.getElementById("total-old-gst-12");
+        const totalOldGst18El = document.getElementById("total-old-gst-18");
+        const printModal = document.getElementById("print-modal");
+        const cancelPrintBtn = document.getElementById("cancel-print-btn");
+        const confirmPrintBtn = document.getElementById("confirm-print-btn");
+        const csvFileInput = document.getElementById("csv-file-input");
+        const uploadBtn = document.getElementById("upload-btn");
+        const headerModal = document.getElementById("header-modal");
+        const headerRowInput = document.getElementById("header-row-input");
+        const dataPreviewContainer = document.getElementById("data-preview-container");
+        const confirmHeaderBtn = document.getElementById("confirm-header-btn");
+        const cancelHeaderBtn = document.getElementById("cancel-header-btn");
+        const mappingModal = document.getElementById("mapping-modal");
+        const mappingContainer = document.getElementById("mapping-container");
+        const confirmMappingBtn = document.getElementById("confirm-mapping-btn");
+        const cancelMappingBtn = document.getElementById("cancel-mapping-btn");
+        const aiSummaryContainer = document.getElementById("ai-summary-container");
+        const aiSummaryLoader = document.getElementById("ai-summary-loader");
+        const aiSummaryOutput = document.getElementById("ai-summary-output");
+        let uploadedDataCache = null;
+        let uploadedHeadersCache = null;
+        let nextGroupId = 0;
+
+        const calculateBatchRow = (batchRow) => {
+            const getVal = (selector) => parseFloat(batchRow.querySelector(selector).value) || 0;
+            const setVal = (selector, value) => {
+                const el = batchRow.querySelector(selector);
+                if (el) el.textContent = `₹${value.toFixed(2)}`;
+            };
+            const baseRate = getVal(".base-rate");
+            const tradeDiscountPercent = getVal(".trade-discount") / 100;
+            const schemePaid = getVal(".scheme-paid");
+            const schemeFree = getVal(".scheme-free");
+            const totalQty = getVal(".total-qty");
+            const currentGstPercent = getVal(".current-gst") / 100;
+            const effectiveRate = (schemePaid + schemeFree > 0 ? baseRate * schemePaid / (schemePaid + schemeFree) : baseRate);
+            const taxableAmount = (effectiveRate * totalQty) * (1 - tradeDiscountPercent);
+            const currentGstAmt = taxableAmount * currentGstPercent;
+            const gst5PercentAmt = taxableAmount * 0.05;
+            setVal(".taxable-amount", taxableAmount);
+            setVal(".current-gst-amt", currentGstAmt);
+            setVal(".gst-5-amt", gst5PercentAmt);
+            setVal(".gst-difference", (currentGstAmt - gst5PercentAmt));
+            calculateTotal();
+        };
+
+        const calculateTotal = () => {
+            let totalTaxable = 0, totalDiscount = 0, totalCurrentGst = 0, total5Gst = 0, totalDifference = 0, totalOldGst5 = 0, totalOldGst12 = 0, totalOldGst18 = 0;
+            document.querySelectorAll(".batch-row").forEach(row => {
+                const parseCurrency = selector => parseFloat(row.querySelector(selector)?.textContent.replace("₹", "") || "0"),
+                    getVal = selector => parseFloat(row.querySelector(selector).value) || 0,
+                    baseRate = getVal(".base-rate"),
+                    schemePaid = getVal(".scheme-paid"),
+                    schemeFree = getVal(".scheme-free"),
+                    totalQty = getVal(".total-qty"),
+                    tradeDiscountPercent = getVal(".trade-discount") / 100,
+                    currentGstValue = getVal(".current-gst"),
+                    currentGstAmount = parseCurrency(".current-gst-amt");
+                const effectiveRate = (schemePaid + schemeFree > 0 ? baseRate * schemePaid / (schemePaid + schemeFree) : baseRate);
+                totalDiscount += (effectiveRate * totalQty) * tradeDiscountPercent;
+                totalTaxable += parseCurrency(".taxable-amount");
+                totalCurrentGst += currentGstAmount;
+                total5Gst += parseCurrency(".gst-5-amt");
+                totalDifference += parseCurrency(".gst-difference");
+                if (currentGstValue === 5) totalOldGst5 += currentGstAmount;
+                else if (currentGstValue === 12) totalOldGst12 += currentGstAmount;
+                else if (currentGstValue === 18) totalOldGst18 += currentGstAmount;
+            });
+            const formatCurrency = (el, val) => el.textContent = `₹${val.toFixed(2)}`;
+            formatCurrency(totalTaxableAmountEl, totalTaxable);
+            formatCurrency(totalDiscountAmountEl, totalDiscount);
+            formatCurrency(totalCurrentGstEl, totalCurrentGst);
+            formatCurrency(total5GstEl, total5Gst);
+            formatCurrency(totalGstDifferenceEl, totalDifference);
+            formatCurrency(totalOldGst5El, totalOldGst5);
+            formatCurrency(totalOldGst12El, totalOldGst12);
+            formatCurrency(totalOldGst18El, totalOldGst18);
+        };
+
+        const switchProductView = groupId => {
+            document.querySelectorAll("#calculator-body .product-group").forEach(group => group.classList.add("hidden"));
+            document.querySelectorAll("#product-tabs .product-tab").forEach(tab => tab.classList.remove("active"));
+            if (groupId) {
+                document.getElementById("no-product-view").classList.add("hidden");
+                document.getElementById(groupId)?.classList.remove("hidden");
+                document.querySelector(`#product-tabs [data-target-id="${groupId}"]`)?.classList.add("active");
+            } else {
+                document.getElementById("no-product-view").classList.remove("hidden");
+            }
+        };
+
+        const addBatchRow = (container, data = {}) => {
+            const row = document.createElement("div");
+            row.className = "batch-row grid grid-cols-12 gap-x-4 gap-y-2 items-end p-3";
+            const gstValue = data.gst || 12;
+            row.innerHTML = `<div class="col-span-6 sm:col-span-2"><input type="text" class="batch-code bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white text-xs rounded-md focus:ring-blue-500 focus:border-blue-500 block w-full p-2" placeholder="Batch" value="${data.batch||""}"></div><div class="col-span-6 sm:col-span-1"><input type="number" class="mrp bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white text-xs rounded-md focus:ring-blue-500 focus:border-blue-500 block w-full p-2" placeholder="MRP" value="${data.mrp||""}"></div><div class="col-span-12 sm:col-span-2"><input type="text" class="hsn-code bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white text-xs rounded-md focus:ring-blue-500 focus:border-blue-500 block w-full p-2" placeholder="HSN Code" value="${data.hsn||""}"></div><div class="col-span-6 sm:col-span-2"><input type="number" step="0.01" class="base-rate bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white text-xs rounded-md focus:ring-blue-500 focus:border-blue-500 block w-full p-2" placeholder="Base Rate" value="${data.baseRate||""}"></div><div class="col-span-6 sm:col-span-1"><input type="number" step="0.01" class="trade-discount bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white text-xs rounded-md focus:ring-blue-500 focus:border-blue-500 block w-full p-2" placeholder="TD %" value="${data.td||""}"></div><div class="col-span-4 sm:col-span-1"><input type="number" class="scheme-paid bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white text-xs rounded-md focus:ring-blue-500 focus:border-blue-500 block w-full p-2" placeholder="Paid" value="${data.schemePaid||""}"></div><div class="col-span-4 sm:col-span-1"><input type="number" class="scheme-free bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white text-xs rounded-md focus:ring-blue-500 focus:border-blue-500 block w-full p-2" placeholder="Free" value="${data.schemeFree||""}"></div><div class="col-span-4 sm:col-span-1"><input type="number" class="total-qty bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white text-xs rounded-md focus:ring-blue-500 focus:border-blue-500 block w-full p-2" placeholder="Qty" value="${data.totalQty||""}"></div><div class="col-span-12 sm:col-span-2"><select class="current-gst bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white text-xs rounded-md focus:ring-blue-500 focus:border-blue-500 block w-full p-2"><option value="12" ${gstValue===12?"selected":""}>12%</option><option value="18" ${gstValue===18?"selected":""}>18%</option><option value="5" ${gstValue===5?"selected":""}>5%</option></select></div><div class="col-span-10 text-xs text-right space-x-4 text-gray-600 dark:text-gray-400"><span>Taxable: <b class="taxable-amount text-gray-800 dark:text-gray-200">₹0.00</b></span><span>Old GST: <b class="current-gst-amt text-gray-800 dark:text-gray-200">₹0.00</b></span><span>New GST: <b class="gst-5-amt text-gray-800 dark:text-gray-200">₹0.00</b></span><span>Diff: <b class="gst-difference font-bold text-blue-600 dark:text-blue-400">₹0.00</b></span></div><div class="col-span-2 flex justify-end"><button class="remove-batch-btn text-gray-400 hover:text-red-500 p-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></div>`;
+            container.appendChild(row);
+            if (Object.keys(data).length > 0) calculateBatchRow(row);
+        };
+
+        const createProductGroup = (data = {}) => {
+            const groupId = `group-${nextGroupId++}`;
+            const groupCard = document.createElement("div");
+            groupCard.id = groupId;
+            groupCard.className = "product-group bg-white dark:bg-gray-800 rounded-xl shadow-lg transition-all duration-300";
+            groupCard.innerHTML = `<div class="p-4 border-b border-gray-200 dark:border-gray-700"><input type="text" class="product-name-group text-lg font-bold bg-transparent focus:outline-none focus:ring-0 border-0 w-full text-gray-900 dark:text-white" placeholder="Enter Product Name" value="${data.product||""}"></div><div class="batches-container"></div><div class="p-2 text-center"><button class="add-batch-btn text-sm text-blue-600 dark:text-blue-400 font-semibold hover:underline">+ Add Batch/MRP</button></div>`;
+            calculatorBody.appendChild(groupCard);
+            
+            const tabButton = document.createElement("button");
+            tabButton.dataset.targetId = groupId;
+            tabButton.className = "product-tab w-full text-left p-3 rounded-lg transition-colors duration-200 flex justify-between items-center bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600";
+            tabButton.innerHTML = `<span class="font-semibold truncate pr-2">${data.product||"New Product"}</span><div class="remove-group-btn text-gray-400 hover:text-red-500 opacity-50 hover:opacity-100 p-1 flex-shrink-0"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg></div>`;
+            productTabs.appendChild(tabButton);
+
+            const nameInput = groupCard.querySelector(".product-name-group");
+            nameInput.addEventListener("input", () => {
+                tabButton.querySelector("span").textContent = nameInput.value || "New Product"
+            });
+            const batchesContainer = groupCard.querySelector(".batches-container");
+            if (data.batches && data.batches.length > 0) {
+                data.batches.forEach(batchData => addBatchRow(batchesContainer, batchData));
+            } else {
+                 addBatchRow(batchesContainer, data);
+            }
+            return groupId;
+        };
+
+        addProductGroupBtn.addEventListener("click", () => {
+            const groupId = createProductGroup();
+            switchProductView(groupId)
+        });
+        
+        productTabs.addEventListener("click", e => {
+            const tab = e.target.closest(".product-tab");
+            if (!tab) return;
+            if (e.target.closest(".remove-group-btn")) {
+                const groupId = tab.dataset.targetId;
+                document.getElementById(groupId)?.remove();
+                tab.remove();
+                const firstTab = productTabs.querySelector(".product-tab");
+                switchProductView(firstTab ? firstTab.dataset.targetId : null);
+                calculateTotal();
+            } else {
+                switchProductView(tab.dataset.targetId);
+            }
+        });
+        
+        calculatorBody.addEventListener("click", e => {
+            if (e.target.closest(".add-batch-btn")) {
+                addBatchRow(e.target.closest(".product-group").querySelector(".batches-container"));
+            }
+            if (e.target.closest(".remove-batch-btn")) {
+                const batchRow = e.target.closest(".batch-row");
+                if (batchRow.parentElement.children.length > 1) {
+                    batchRow.remove();
+                    calculateTotal();
+                } else {
+                    alert("Each product must have at least one batch row.");
+                }
+            }
+        });
+        
+        calculatorBody.addEventListener("input", e => {
+            if (e.target.closest(".batch-row")) {
+                calculateBatchRow(e.target.closest(".batch-row"));
+            }
+        });
+        
+        const APP_FIELDS = { product: { label: "Product Name", keys: ["nametoprint", "productname", "itemname"] }, hsn: { label: "HSN Code", keys: ["hsn/sac", "hsncode", "hsn"] }, totalQty: { label: "Total Quantity", keys: ["stock", "qty", "quantity", "totalquantity"] }, batch: { label: "Batch", keys: ["batch", "batchno"] }, mrp: { label: "MRP", keys: ["mrp"] }, td: { label: "Trade Discount %", keys: ["traderate", "tradediscount", "td", "td%"] }, baseRate: { label: "Base Rate", keys: ["purchaserate", "baserate", "rate"] }, gst: { label: "Current GST %", keys: ["purchasetaxrate", "gst", "gst%"] }, schemePaid: { label: "Scheme (Paid)", keys: ["schemepaid"] }, schemeFree: { label: "Scheme (Free)", keys: ["schemefree"] } };
+
+        function findBestMatch(fieldKey, fileHeaders) {
+            const aKeys = APP_FIELDS[fieldKey].keys;
+            const normalizedHeaders = fileHeaders.map(h => String(h).trim().toLowerCase().replace(/[^a-z0-9]/g, ''));
+            for (const key of aKeys) {
+                const foundIndex = normalizedHeaders.indexOf(key);
+                if (foundIndex !== -1) return foundIndex;
+            }
+            return -1;
+        }
+
+        function processUploadedData(dataRows, mapping, headerRowIndex) {
+            const groupedProducts = new Map();
+            for (let i = headerRowIndex + 1; i < dataRows.length; i++) {
+                const columns = dataRows[i];
+                if (!columns || columns.length === 0 || columns.every(c => c === null || c === '') || (columns.join(',') || '').toLowerCase().includes('grand total')) continue;
+                const getColumnData = (key) => (mapping[key] !== undefined && mapping[key] !== -1) ? columns[mapping[key]] : '';
+                const productName = String(getColumnData('product')).trim();
+                if (productName) {
+                    const batchData = { hsn: String(getColumnData('hsn')).trim(), totalQty: parseFloat(getColumnData('totalQty')) || 0, batch: String(getColumnData('batch')).trim(), mrp: parseFloat(getColumnData('mrp')) || 0, td: parseFloat(getColumnData('td')) || 0, baseRate: parseFloat(getColumnData('baseRate')) || 0, gst: parseInt(getColumnData('gst')) || 12, schemePaid: parseFloat(getColumnData('schemePaid')) || 0, schemeFree: parseFloat(getColumnData('schemeFree')) || 0 };
+                    if (!groupedProducts.has(productName)) { groupedProducts.set(productName, []); }
+                    groupedProducts.get(productName).push(batchData);
+                }
+            }
+            if (groupedProducts.size > 0) {
+                document.querySelectorAll(".product-group").forEach(group => group.remove());
+                productTabs.innerHTML = "";
+                let firstGroupId = null;
+                groupedProducts.forEach((batches, productName) => {
+                    const groupId = createProductGroup({ product: productName, batches: batches });
+                    if (!firstGroupId) { firstGroupId = groupId; }
+                });
+                if (firstGroupId) { switchProductView(firstGroupId); }
+                alert(`${groupedProducts.size} products with their batches processed successfully!`);
+                calculateTotal();
+            } else {
+                alert("No valid product data found to process.");
+            }
+        }
+
+        function autoDetectHeaderRow(data) {
+            const keywords = ['nametoprint', 'hsn/sac', 'stock', 'batch', 'mrp', 'purchaserate'];
+            let bestMatch = { row: 1, count: 0 };
+            for (let i = 0; i < Math.min(data.length, 20); i++) {
+                const row = data[i];
+                if (!row || !Array.isArray(row)) continue;
+                let currentCount = 0;
+                const normalizedRow = row.map(cell => String(cell).trim().toLowerCase().replace(/[^a-z0-9]/g, ''));
+                for (const keyword of keywords) { if (normalizedRow.includes(keyword)) currentCount++; }
+                if (currentCount > bestMatch.count) { bestMatch = { row: i + 1, count: currentCount }; }
+            }
+            return bestMatch.row;
+        }
+
+        function highlightHeaderRow(rowNumber) {
+            const table = dataPreviewContainer.querySelector("table");
+            if (table) {
+                table.querySelectorAll("tr").forEach(row => row.classList.remove("header-highlight"));
+                if (table.rows[rowNumber - 1]) { table.rows[rowNumber - 1].classList.add("header-highlight"); }
+            }
+        }
+
+        headerRowInput.addEventListener("input", () => highlightHeaderRow(parseInt(headerRowInput.value, 10)));
+        uploadBtn.addEventListener("click", () => {
+            const file = csvFileInput.files[0];
+            if (!file) return alert("Please select a file.");
+            const reader = new FileReader();
+            const processData = (data => {
+                if (data && data.length !== 0) {
+                    uploadedDataCache = data;
+                    (function(data) {
+                        let tableHtml = '<table class="w-full text-xs text-left">';
+                        data.slice(0, 20).forEach((row, rowIndex) => {
+                            tableHtml += `<tr class="bg-white dark:bg-gray-800 border-b dark:border-gray-700"><td class="px-2 py-1 font-mono text-gray-400 bg-gray-100 dark:bg-gray-700">${rowIndex+1}</td>`;
+                            row.forEach(cell => { tableHtml += `<td class="px-2 py-1">${String(cell).trim()}</td>` });
+                            tableHtml += "</tr>";
+                        });
+                        tableHtml += "</table>";
+                        dataPreviewContainer.innerHTML = tableHtml;
+                        const detectedRow = autoDetectHeaderRow(data);
+                        headerRowInput.value = detectedRow;
+                        headerModal.classList.remove("hidden");
+                        setTimeout(() => highlightHeaderRow(detectedRow), 10);
+                    }(data));
+                } else { alert("File is empty."); }
+            });
+            if (file.name.endsWith(".csv") || file.type === "text/csv") {
+                reader.onload = e => processData(e.target.result.split(/\r\n|\n/).map(row => row.split(",").map(cell => cell.trim())));
+                reader.readAsText(file);
+            } else {
+                reader.onload = e => {
+                    try {
+                        const workbook = XLSX.read(new Uint8Array(e.target.result), { type: "array" });
+                        processData(XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1, defval: "" }));
+                    } catch (err) { alert("Could not process Excel file."); }
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        });
+
+        confirmHeaderBtn.addEventListener("click", () => {
+            const headerRow = parseInt(headerRowInput.value, 10);
+            if (isNaN(headerRow) || headerRow < 1 || headerRow > uploadedDataCache.length) return alert("Invalid row number.");
+            uploadedHeadersCache = uploadedDataCache[headerRow - 1].map(h => String(h).trim());
+            headerModal.classList.add("hidden");
+            (function() {
+                mappingContainer.innerHTML = "";
+                Object.keys(APP_FIELDS).forEach(key => {
+                    const field = APP_FIELDS[key];
+                    const bestMatchIndex = findBestMatch(key, uploadedHeadersCache);
+                    const options = uploadedHeadersCache.map((header, index) => `<option value="${index}" ${index===bestMatchIndex?"selected":""}>${header||`Column ${index+1}`}</option>`).join("");
+                    mappingContainer.innerHTML += `<div class="grid grid-cols-2 gap-4 items-center"><label class="font-semibold text-sm text-gray-700 dark:text-gray-300 text-right">${field.label}:</label><select data-app-field="${key}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"><option value="-1">-- Don't Import --</option>${options}</select></div>`;
+                });
+                mappingModal.classList.remove("hidden");
+            })();
+        });
+
+        cancelHeaderBtn.addEventListener("click", () => { headerModal.classList.add("hidden"); csvFileInput.value = ""; });
+        confirmMappingBtn.addEventListener("click", () => {
+            const mapping = {};
+            mappingContainer.querySelectorAll("select").forEach(select => {
+                const appField = select.dataset.appField;
+                const fileColumnIndex = parseInt(select.value, 10);
+                if (fileColumnIndex !== -1) { mapping[appField] = fileColumnIndex; }
+            });
+            processUploadedData(uploadedDataCache, mapping, parseInt(headerRowInput.value, 10) - 1);
+            mappingModal.classList.add("hidden");
+            csvFileInput.value = "";
+        });
+
+        cancelMappingBtn.addEventListener("click", () => { mappingModal.classList.add("hidden"); csvFileInput.value = ""; });
+        
+        const exportData = () => {
+             if (calculatorBody.children.length === 0) return alert("No data to export.");
+            const headers = ["Product Name", "Batch", "MRP", "HSN Code", "Base Rate", "TD %", "Scheme (Paid)", "Scheme (Free)", "Total Quantity", "Taxable Amount", "Current GST %", "Current GST Amt", "GST 5% Amount", "GST Difference"];
+            const data = [headers];
+            document.querySelectorAll(".product-group").forEach(group => {
+                const productName = group.querySelector(".product-name-group").value;
+                group.querySelectorAll(".batch-row").forEach(row => {
+                    data.push([productName, row.querySelector(".batch-code").value, row.querySelector(".mrp").value, row.querySelector(".hsn-code").value, row.querySelector(".base-rate").value, row.querySelector(".trade-discount").value, row.querySelector(".scheme-paid").value, row.querySelector(".scheme-free").value, row.querySelector(".total-qty").value, row.querySelector(".taxable-amount").textContent, row.querySelector(".current-gst").value, row.querySelector(".current-gst-amt").textContent, row.querySelector(".gst-5-amt").textContent, row.querySelector(".gst-difference").textContent]);
+                });
+            });
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "GST_Difference_Data");
+            XLSX.writeFile(wb, `GST_Difference_Export_${(new Date).toISOString().split("T")[0]}.xlsx`);
+        };
+        
+        function numberToWords(num) {
+            const a = ["", "one ", "two ", "three ", "four ", "five ", "six ", "seven ", "eight ", "nine ", "ten ", "eleven ", "twelve ", "thirteen ", "fourteen ", "fifteen ", "sixteen ", "seventeen ", "eighteen ", "nineteen "];
+            const b = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
+            const inWords = n => (n > 19 ? b[Math.floor(n / 10)] + " " + a[n % 10] : a[n]);
+            const [integerPart, decimalPart] = (num.toFixed(2).toString()).split(".");
+            let n = parseInt(integerPart);
+            if (n === 0) return "Rupees zero only";
+            let rupeesInWords = "";
+            rupeesInWords += n > 9999999 ? inWords(Math.floor(n / 1e7)) + "crore " : "";
+            rupeesInWords += (n %= 1e7) > 99999 ? inWords(Math.floor(n / 1e5)) + "lakh " : "";
+            rupeesInWords += (n %= 1e5) > 999 ? inWords(Math.floor(n / 1e3)) + "thousand " : "";
+            rupeesInWords += (n %= 1e3) > 99 ? inWords(Math.floor(n / 100)) + "hundred " : "";
+            rupeesInWords += (n %= 100) > 0 ? inWords(n) : "";
+            let paisaInWords = parseInt(decimalPart) > 0 ? "and " + inWords(parseInt(decimalPart)) + "paisa " : "";
+            return `Rupees ${rupeesInWords.trim()} ${paisaInWords.trim()} only`.charAt(0).toUpperCase() + `Rupees ${rupeesInWords.trim()} ${paisaInWords.trim()} only`.slice(1).replace(/\s+/g, " ");
+        }
+
+        cancelPrintBtn.addEventListener("click", () => printModal.classList.add("hidden"));
+        confirmPrintBtn.addEventListener("click", () => {
+            const yourCompanyName = document.getElementById("your-company-name").value || "Your Company";
+            const yourCompanyGstin = document.getElementById("your-company-gstin").value || "Your GSTIN";
+            const authorizedSignatory = document.getElementById("authorized-signatory").value || "Authorized Signatory";
+            const vendorName = document.getElementById("vendor-name").value || "N/A";
+            const vendorGstin = document.getElementById("vendor-gstin").value || "N/A";
+            const reportDate = document.getElementById("report-date").value ? new Date(document.getElementById("report-date").value).toLocaleDateString("en-GB") : (new Date).toLocaleDateString("en-GB");
+            const logoUrl = `data:image/svg+xml;base64,${btoa('<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="48" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="4"/><text x="50" y="62" font-family="Arial, sans-serif" font-size="50" font-weight="bold" fill="#1e3a8a" text-anchor="middle">YC</text></svg>')}`;
+            const letterHtml = getLetterContent(yourCompanyName, yourCompanyGstin, vendorName, vendorGstin, reportDate, logoUrl, authorizedSignatory);
+            const reportHtml = getReportContent(yourCompanyName, yourCompanyGstin, vendorName, vendorGstin, reportDate, logoUrl, authorizedSignatory);
+            const combinedContent = `<html><head><title>GST Difference Claim</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700&family=Teko:wght@400;700&family=Roboto:wght@400;700&family=Great+Vibes&family=Noto+Serif:wght@400;700&display=swap" rel="stylesheet"><style>body{margin:0;font-family:'Roboto',sans-serif;-webkit-print-color-adjust:exact;}.letter-wrapper{page-break-after:always;}.report-table{width:100%;border-collapse:collapse;}.watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-45deg);font-family:'Teko',sans-serif;font-size:120px;color:rgba(100,116,139,0.05);font-weight:700;z-index:-1000;white-space:nowrap;text-transform:uppercase;pointer-events:none;}@media print{@page{size:A4 landscape;margin:1cm;}@page:first{size:A4 portrait;margin:1.5cm;}.report-table thead{display:table-header-group;}.report-table tbody tr,.footer-summary,.report-signature,.creator-credit,.summary-box{page-break-inside:avoid;}}</style></head><body><div class="watermark">${yourCompanyName}</div><div class="letter-wrapper">${letterHtml}</div><div class="report-wrapper">${reportHtml}</div></body></html>`;
+            const printWindow = window.open("", "", "height=800,width=1100");
+            printWindow.document.write(combinedContent);
+            printWindow.document.close();
+            setTimeout(() => { printWindow.focus(); printWindow.print(); }, 500);
+            printModal.classList.add("hidden");
+        });
+
+        function getReportContent(yourCompanyName, yourCompanyGstin, vendorName, vendorGstin, reportDate, logoUrl, authorizedSignatory) {
+            let rowsHtml = "";
+            let srNo = 1;
+            document.querySelectorAll(".product-group").forEach(group => {
+                const productName = group.querySelector(".product-name-group").value;
+                group.querySelectorAll(".batch-row").forEach(row => {
+                    const schemeText = (row.querySelector(".scheme-paid").value || 0) + "+" + (row.querySelector(".scheme-free").value || 0);
+                    rowsHtml += `<tr style="border-bottom:1px solid #dde1e6;"><td style="padding:7px 5px;text-align:center;">${srNo++}</td><td style="padding:7px 5px;text-align:left;word-break:break-all;">${productName}</td><td style="padding:7px 5px;text-align:left;">${row.querySelector(".batch-code").value}</td><td style="padding:7px 5px;text-align:right;">${row.querySelector(".mrp").value}</td><td style="padding:7px 5px;text-align:left;">${row.querySelector(".hsn-code").value}</td><td style="padding:7px 5px;text-align:right;">${parseFloat(row.querySelector(".base-rate").value||0).toFixed(2)}</td><td style="padding:7px 5px;text-align:center;">${parseFloat(row.querySelector(".trade-discount").value||0).toFixed(2)}%</td><td style="padding:7px 5px;text-align:center;">${schemeText}</td><td style="padding:7px 5px;text-align:center;">${row.querySelector(".total-qty").value}</td><td style="padding:7px 5px;text-align:right;">${row.querySelector(".taxable-amount").textContent}</td><td style="padding:7px 5px;text-align:center;">${row.querySelector(".current-gst").value}%</td><td style="padding:7px 5px;text-align:right;">${row.querySelector(".current-gst-amt").textContent}</td><td style="padding:7px 5px;text-align:right;">${row.querySelector(".gst-5-amt").textContent}</td><td style="padding:7px 5px;text-align:right;font-weight:bold;color:#15803d;">${row.querySelector(".gst-difference").textContent}</td></tr>`;
+                });
+            });
+            return `<div><style>.report-table{width:100%;border-collapse:collapse;font-size:9pt;}.report-table th,.report-table td{border:1px solid #dde1e6;}.report-table th{background-color:#f1f5f9!important;color:#0f172a;font-weight:700;padding:8px 5px;}.report-table tbody tr:nth-child(even){background-color:#f8fafc!important;}.report-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:15px;padding-bottom:10px;border-bottom:4px double #2563eb;}.header-left{display:flex;align-items:center;}.logo{width:50px;height:50px;margin-right:15px;}.company-name{font-family:'Teko',sans-serif;font-size:30px;font-weight:bold;color:#1e3a8a;line-height:1;margin-bottom:5px;}.footer-summary{margin-top:15px;width:50%;margin-left:auto;font-size:10pt;border-collapse:collapse;}.footer-summary td{border:1px solid #dde1e6;padding:8px;}.report-signature{margin-top:30px;display:flex;justify-content:flex-end;font-size:11pt;align-items:flex-end;padding-top:15px;}.creator-credit{text-align:center;padding:10px;margin-top:40px;border-top:2px solid;border-image:linear-gradient(to right,#f97316,#2563eb) 1;font-family:'Noto Serif',serif;}.creator-credit .slogan{font-weight:700;font-size:12pt;color:#1e3a8a;margin:0;}.creator-credit .slogan-subtitle{font-size:9pt;color:#475569;margin:2px 0 10px 0;letter-spacing:.5px;}.creator-credit .designed-by{font-size:9pt;color:#334155;margin:0;}.creator-credit .name{font-weight:700;font-size:11pt;color:#1e3a8a;margin:2px 0 0 0;}.creator-credit .email{font-size:9pt;color:#475569;margin-top:4px;}</style><div class="report-header"><div class="header-left"><img src="${logoUrl}" class="logo" alt="Logo"><div><div class="company-name">${yourCompanyName}</div><p style="margin:0;font-size:10pt;">GSTIN: ${yourCompanyGstin}</p></div></div><div style="text-align:right;font-size:10pt;"><p style="margin:0;"><strong>Vendor:</strong> <span style="font-weight:bold;color:#c2410c;">${vendorName}</span></p><p style="margin:0;"><strong>Vendor GSTIN:</strong> ${vendorGstin}</p><p style="margin:0;"><strong>Report Date:</strong> ${reportDate}</p><p style="margin:0;font-weight:bold;">Subject: ITC Difference Claim - Detailed Report</p></div></div><h3 style="text-align:center;font-family:'Teko',sans-serif;font-size:22px;text-transform:uppercase;margin-bottom:10px;color:#1e3a8a;">Item-wise Calculation Details</h3><table class="report-table"><thead><tr><th>Sr.</th><th>Product Name</th><th>Batch</th><th style="text-align:right;">MRP</th><th>HSN</th><th style="text-align:right;">Base Rate</th><th style="text-align:center;">TD %</th><th style="text-align:center;">Scheme</th><th style="text-align:center;">Total Qty</th><th style="text-align:right;">Taxable Amt</th><th style="text-align:center;">Old GST</th><th style="text-align:right;">Old GST Amt</th><th style="text-align:right;">New GST Amt</th><th style="text-align:right;">Difference</th></tr></thead><tbody>${rowsHtml}</tbody></table><table class="footer-summary"><tr><td style="text-align:right;font-weight:bold;">Total Taxable Amount:</td><td style="text-align:right;">${totalTaxableAmountEl.textContent}</td></tr><tr><td style="text-align:right;font-weight:bold;">Old GST @ 5% Amount:</td><td style="text-align:right;">${totalOldGst5El.textContent}</td></tr><tr><td style="text-align:right;font-weight:bold;">Old GST @ 12% Amount:</td><td style="text-align:right;">${totalOldGst12El.textContent}</td></tr><tr><td style="text-align:right;font-weight:bold;">Old GST @ 18% Amount:</td><td style="text-align:right;">${totalOldGst18El.textContent}</td></tr><tr><td style="text-align:right;font-weight:bold;">Total GST Paid (Old Rates):</td><td style="text-align:right;">${totalCurrentGstEl.textContent}</td></tr><tr><td style="text-align:right;font-weight:bold;">Total GST Applicable (New @5%):</td><td style="text-align:right;">${total5GstEl.textContent}</td></tr><tr style="background-color:#dbeafe!important;color:#1e3a8a!important;font-size:1.1em;"><td style="text-align:right;font-weight:bold;">Total Difference to Claim:</td><td style="text-align:right;font-weight:bold;">${totalGstDifferenceEl.textContent}</td></tr></table><div class="report-signature"><div style="text-align:right;"><div style="font-family:'Great Vibes',cursive;font-size:42px;color:#1e3a8a;margin-bottom:-15px;transform:rotate(-2deg);">${authorizedSignatory}</div><p style="margin:0;">(Authorized Signatory)<br>For <strong>${yourCompanyName}</strong></p></div></div><div class="creator-credit"><p class="slogan">GST अंतर कैलक्यूलेटर</p><p class="slogan-subtitle">गणना में सटीकता, व्यापार में सुगमता।</p><p class="designed-by">Developed By</p><p class="name">Ram Prakash</p><p class="email">victoryzonex@gmail.com</p></div></div>`;
+        }
+
+        function getLetterContent(yourCompanyName, yourCompanyGstin, vendorName, vendorGstin, reportDate, logoUrl, authorizedSignatory) {
+            const differenceAmount = parseFloat(totalGstDifferenceEl.textContent.replace("₹", ""));
+            const differenceInWords = numberToWords(differenceAmount);
+            return `<div style="color:#333;display:flex;flex-direction:column;font-size:11pt;height:100vh;"><style>.letter-header{text-align:center;border-bottom:5px solid;border-image:linear-gradient(to right,#f97316,#2563eb) 1;padding-bottom:15px;margin-bottom:25px;display:flex;align-items:center;justify-content:center;gap:20px;}.letter-header .main-title{font-family:'Teko',sans-serif;font-size:22px;font-weight:700;color:#ea580c;}.letter-header .company-name{font-family:'Teko',sans-serif;font-size:44px;font-weight:700;color:#1e3a8a;line-height:1;}.letter-header p{margin:0;font-size:11pt;color:#475569;}.meta-info{display:flex;justify-content:space-between;margin-bottom:25px;}.subject{margin-bottom:20px;font-weight:700;font-size:13pt;text-decoration:underline;text-decoration-thickness:1.5px;}.summary-box{margin-top:20px;margin-bottom:20px;padding:20px;border:1px solid #dde1e6;border-left:6px solid #2563eb;background-color:#f8fafc!important;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.05);}.summary-box h4{margin-top:0;font-size:15pt;font-weight:700;color:#1e3a8a;margin-bottom:15px;font-family:'Teko',sans-serif;}.summary-table{width:100%;border-collapse:collapse;}.summary-table td{padding:9px;border-bottom:1px solid #eef2f7;}.summary-table tr:last-child td{border-bottom:none;}.summary-table td:first-child{font-weight:700;color:#374151;}.summary-table td:last-child{text-align:right;font-weight:700;}.claim-amount-row td{font-size:1.1em;background-color:#e0e7ff!important;color:#1e3a8a;}.letter-footer{margin-top:auto;padding-top:20px;text-align:right;}.gst-breakdown{padding-left:20px;font-size:10pt;color:#475569;}</style><div class="letter-body" style="flex-grow:1;"><div class="letter-header"><img src="${logoUrl}" style="width:65px;height:65px;" alt="Logo"><div><div class="company-name">${yourCompanyName}</div><p>GSTIN: ${yourCompanyGstin}</p></div></div><div class="meta-info"><div>To,<br/><strong>${vendorName}</strong><br/>GSTIN: ${vendorGstin||"N/A"}</div><div style="text-align:right;"><strong>Date:</strong> ${reportDate}</div></div><p class="subject">Sub: Claim for GST Input Tax Credit (ITC) Difference due to Government Tax Reforms</p><p style="line-height:1.6;">This is to bring to your kind attention that following the recent GST reforms by the Government of India, the tax slabs for certain products have been revised. This has resulted in a discrepancy between the GST rate charged at the time of our purchase from you and the currently applicable rate.</p><p style="line-height:1.6;">We have performed a thorough audit of our existing inventory procured from your company and have calculated the resulting difference in the Input Tax Credit (ITC). A clear summary of the claim is presented below:</p><div class="summary-box"><h4>GST Claim Summary</h4><table class="summary-table"><tr><td>Total Taxable Amount of affected stock</td><td>${totalTaxableAmountEl.textContent}</td></tr><tr><td>Total GST Paid by us (at old rates)<div class="gst-breakdown">(GST @12%: ${totalOldGst12El.textContent} | GST @18%: ${totalOldGst18El.textContent})</div></td><td>${totalCurrentGstEl.textContent}</td></tr><tr><td>Total GST applicable now (at new 5% rate)</td><td>${total5GstEl.textContent}</td></tr><tr class="claim-amount-row"><td>Net ITC Difference to be Claimed</td><td>${totalGstDifferenceEl.textContent}<br><small style="font-weight:normal;font-size:9pt;">(${differenceInWords})</small></td></tr></table></div><p style="line-height:1.6;">A detailed, item-wise statement is attached on the subsequent page for your reference and verification. We earnestly request you to validate these calculations from your end and issue the corresponding credit note at the earliest.</p></div><div class="letter-footer"><p style="margin-bottom:10px;">Thanking you for your cooperation.</p><p style="margin-bottom:-5px;">Sincerely,</p><br><br><br><strong style="display:block;">For ${yourCompanyName}</strong></div></div>`;
+        }
+
+        async function getAiSummary(retryCount = 0) {
+            aiSummaryContainer.classList.remove("hidden");
+            aiSummaryLoader.classList.remove("hidden");
+            aiSummaryOutput.classList.add("hidden");
+            const taxableAmt = totalTaxableAmountEl.textContent, currentGst = totalCurrentGstEl.textContent, newGst = total5GstEl.textContent, diffGst = totalGstDifferenceEl.textContent;
+            if (parseFloat(diffGst.replace("₹", "")) <= 0) {
+                aiSummaryOutput.textContent = "No GST difference to summarize. Please check your data.";
+                aiSummaryLoader.classList.add("hidden");
+                aiSummaryOutput.classList.remove("hidden");
+                return;
+            }
+            const dataSummary = `\n- Total Taxable Amount: ${taxableAmt}\n- Total GST originally paid (at old rates): ${currentGst}\n- Total GST now applicable (at new 5% rate): ${newGst}\n- Net ITC Difference to be Claimed: ${diffGst}\n    `;
+            const systemPrompt = "You are an expert financial analyst. Your task is to write a concise, professional, and formal summary for a GST (Goods and Services Tax) difference claim letter. Use the provided data to compose a paragraph. The summary should be suitable for inclusion in a formal letter to a vendor. Do not add any greetings or sign-offs. Just provide the paragraph.";
+            const userPrompt = `Please generate the summary based on this data:\n${dataSummary}`;
+            const apiKey = ""; 
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            const payload = { contents: [{ parts: [{ text: userPrompt }] }], systemInstruction: { parts: [{ text: systemPrompt }] } };
+            try {
+                const response = await fetch(apiUrl, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+                if (!response.ok) {
+                    if (response.status === 429 && retryCount < 3) {
+                        const delay = 1000 * Math.pow(2, retryCount);
+                        setTimeout(() => getAiSummary(retryCount + 1), delay);
+                        return;
+                    }
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const result = await response.json();
+                const candidate = result.candidates?.[0];
+                if (candidate && candidate.content?.parts?.[0]?.text) {
+                    aiSummaryOutput.textContent = candidate.content.parts[0].text;
+                } else {
+                    aiSummaryOutput.textContent = "Could not generate a summary from the AI. The response was empty. Please try again.";
+                    console.error("Unexpected AI response structure:", result);
+                }
+            } catch (error) {
+                console.error("Error calling Gemini API:", error);
+                aiSummaryOutput.textContent = "An error occurred while generating the summary. Please check the console for details and try again.";
+            } finally {
+                aiSummaryLoader.classList.add("hidden");
+                aiSummaryOutput.classList.remove("hidden");
+            }
+        }
+        
+        switchProductView(null);
+        licenseTrigger.addEventListener("click", e => { e.preventDefault(); licenseModal.classList.remove("hidden"); });
+        closeLicenseModal.addEventListener("click", () => licenseModal.classList.add("hidden"));
+        licenseModal.addEventListener("click", e => { if (e.target === licenseModal) { licenseModal.classList.add("hidden"); } });
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", () => {
+                navigator.serviceWorker.register("/sw.js").then(registration => {
+                    console.log("ServiceWorker registration successful with scope: ", registration.scope);
+                }).catch(err => {
+                    console.log("ServiceWorker registration failed: ", err);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
+
